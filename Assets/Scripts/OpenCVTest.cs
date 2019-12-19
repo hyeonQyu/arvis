@@ -46,18 +46,25 @@ public class OpenCVTest:MonoBehaviour
     //public static extern int GetInformations(out IntPtr informations, out int informationCount);
     [DllImport("opencv410")]
     public static extern void GetPoints([MarshalAs(UnmanagedType.I4)] out int x, [MarshalAs(UnmanagedType.I4)] out int y, [MarshalAs(UnmanagedType.I4)] int i);
+    [DllImport("opencv410")]
+    public static extern void GetHandPoints();
 
 
     // Start is called before the first frame update
     void Start()
     {
-        btnFlipImage.onClick.AddListener(CallMarshalling);
+        btnFlipImage.onClick.AddListener(CallGetHandPoints);
     }
 
     // Update is called once per frame
     void Update()
     {
 
+    }
+
+    private void CallGetHandPoints()
+    {
+        GetHandPoints();
     }
 
     private void CallFlipImage()
