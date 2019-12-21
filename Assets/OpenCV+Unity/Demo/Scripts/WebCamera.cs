@@ -63,7 +63,7 @@ namespace OpenCvSharp.Demo
 				if (-1 != cameraIndex)
 				{
 					webCamDevice = WebCamTexture.devices[cameraIndex];
-					webCamTexture = new WebCamTexture(webCamDevice.Value.name);
+					webCamTexture = new WebCamTexture(/*webCamDevice.Value.name*/Screen.width, Screen.height);
 
 					// read device params and make conversion map
 					ReadTextureConversionParameters();
@@ -85,8 +85,8 @@ namespace OpenCvSharp.Demo
 		{
 			Unity.TextureConversionParams parameters = new Unity.TextureConversionParams();
 
-			// frontal camera - we must flip around Y axis to make it mirror-like
-			parameters.FlipHorizontally = forceFrontalCamera || webCamDevice.Value.isFrontFacing;
+            // frontal camera - we must flip around Y axis to make it mirror-like
+            parameters.FlipHorizontally = forceFrontalCamera || webCamDevice.Value.isFrontFacing;
 			
 			// TODO:
 			// actually, code below should work, however, on our devices tests every device except iPad

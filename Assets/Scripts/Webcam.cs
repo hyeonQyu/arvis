@@ -6,7 +6,7 @@ using OpenCvSharp;
 using OpenCvSharp.Demo;
 using System;
 
-public class Webcam : WebCamera
+public class Webcam:WebCamera
 {
     protected override void Awake()
     {
@@ -16,12 +16,16 @@ public class Webcam : WebCamera
 
     protected override bool ProcessTexture(WebCamTexture input, ref Texture2D output)
     {
+        //Mat imgFrame = OpenCvSharp.Unity.TextureToMat(input, TextureParameters);
+        //output = OpenCvSharp.Unity.MatToTexture(imgFrame, output);
+
+
         int range_count = 0;
 
         Scalar skin = new Scalar(95, 127, 166);
         Scalar table = new Scalar(176, 211, 238);
 
-        
+
         Mat rgbColor = new Mat(1, 1, MatType.CV_8UC3, skin);
         Mat rgbColor2 = new Mat(1, 1, MatType.CV_8UC3, table);
         Mat hsvColor = new Mat();
@@ -69,14 +73,14 @@ public class Webcam : WebCamera
             high_hue1 = high_hue;
         }
 
-        
+
 
         for(;;)
         {
             // wait for a new frame from camera and store it into 'frame'
             Mat imgFrame, imgHsv;
-           imgFrame = OpenCvSharp.Unity.TextureToMat(input, TextureParameters);
-           
+            imgFrame = OpenCvSharp.Unity.TextureToMat(input, TextureParameters);
+
 
             // check if we succeeded
             if(imgFrame.Empty())
@@ -95,10 +99,10 @@ public class Webcam : WebCamera
             Mat imgMask1, imgMask2;
             imgMask1 = new Mat();
             imgMask2 = new Mat();
-            Cv2.InRange(imgHsv, new Scalar(low_hue1, 60, 90), new Scalar(high_hue1, 255, 255), imgMask1);
+            Cv2.InRange(imgHsv, new Scalar(low_hue1, 50, 80), new Scalar(high_hue1, 255, 255), imgMask1);
             if(range_count == 2)
             {
-                Cv2.InRange(imgHsv, new Scalar(low_hue2, 60, 90), new Scalar(high_hue2, 255, 255), imgMask2);
+                Cv2.InRange(imgHsv, new Scalar(low_hue2, 50, 80), new Scalar(high_hue2, 255, 255), imgMask2);
                 imgMask1 |= imgMask2;
             }
 
@@ -145,7 +149,7 @@ public class Webcam : WebCamera
                 a = Cv2.ContourArea(contours[i], false);  //  Find the area of contour
                 if(a > largest_area)
                 {
-                    largest_area = (int) a;
+                    largest_area = (int)a;
                     largest_contour_index = i;                //Store the index of largest contour
                 }
 
@@ -258,7 +262,7 @@ public class Webcam : WebCamera
             //imshow("Gray", img_gray);
             //imshow("Canny", img_canny);
             //Cv2.ImShow("Hand", img_hand);
-            output = OpenCvSharp.Unity.MatToTexture(img_hand, output);
+            output = OpenCvSharp.Unity.MatToTexture(imgMask1, output);
 
             if(Cv2.WaitKey(5) >= 0)
                 break;
@@ -268,7 +272,7 @@ public class Webcam : WebCamera
     }
 }
 
-//public class Webcam : MonoBehaviour
+//public class Webcam:MonoBehaviour
 //{
 //    private RawImage _background;
 //    private WebCamTexture _webCamTexture;
@@ -281,7 +285,7 @@ public class Webcam : WebCamera
 //        _webCamTexture = new WebCamTexture(Screen.width, Screen.height);
 
 
-//        _frame = OpenCvSharp.Unity.TextureToMat(_webCamTexture, OpenCvSharp.Demo.WebCamera.);
+//        //_frame = OpenCvSharp.Unity.TextureToMat(_webCamTexture, OpenCvSharp.Demo.WebCamera.);
 
 
 //        _background.texture = _webCamTexture;
