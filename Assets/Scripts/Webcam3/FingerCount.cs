@@ -60,14 +60,20 @@
 //        if(biggestContourIndex < 0)
 //            return contoursImage;
 
-//        // 각 contour 및 결함에 대한 convex hull 객체를 찾음
-//        Point[] hullPoints = new Point[contours.Length];
-//        int[] hullInts;
-
 //        // convex hull을 그리고 경계 사각형을 찾음
-//        Cv2.ConvexHull(InputArray.Create(contours[biggestContourIndex]), hullPoints, true);
+//        Point[] hullPoints = Cv2.ConvexHull(contours[biggestContourIndex]);
 
-//        // 결함을 찾음
+//        // convex hull 경계
+//        OpenCvSharp.Rect boundingRectangle = Cv2.BoundingRect(hullPoints);
+
+//        // 경계 사각형의 중앙을 찾음(손의 중앙으로 가정)
+//        Point centerBoundingRect = new Point((boundingRectangle.TopLeft.X + boundingRectangle.BottomRight.X) / 2,
+//                                             (boundingRectangle.TopLeft.Y + boundingRectangle.BottomRight.Y) / 2);
+
+//        Point[] startPoints;
+//        Point[] farPoints;
+
+//        for(int i = 0; i < defe)
 //    }
 
 //    private double FindPointsDistance(Point a, Point b)

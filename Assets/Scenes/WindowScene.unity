@@ -248,9 +248,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be6f43dd71444244d9c403b4382e0ad7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  btnFlipImage: {fileID: 0}
-  imageBlack: {fileID: 0}
-  txt: {fileID: 0}
 --- !u!81 &409708052
 AudioListener:
   m_ObjectHideFlags: 0
