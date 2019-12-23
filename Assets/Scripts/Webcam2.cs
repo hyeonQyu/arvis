@@ -97,7 +97,7 @@ public class Webcam2 : WebCamera
         Point center = GetHandCenter(imgMask, out radius);
         Debug.Log(center + " " + radius);
         // 손의 중심에 원을 그림
-        Cv2.Circle(imgHand, center, 5, new Scalar(0, 255, 0), 2);
+        Cv2.Circle(imgHand, center, (int)(radius * 1.3), new Scalar(0, 255, 0), 2);
 
         // 영상 녹화
         //_imgFrames[_frameCount++] = imgMask;
@@ -286,8 +286,8 @@ public class Webcam2 : WebCamera
                 if(d > 1)
                 {
                     Scalar scalar = Scalar.RandomColor();
-                    Cv2.Line(imgHand, start, far, scalar, 2, LineTypes.AntiAlias);
-                    Cv2.Line(imgHand, end, far, scalar, 2, LineTypes.AntiAlias);
+                    //Cv2.Line(imgHand, start, far, scalar, 2, LineTypes.AntiAlias);
+                    //Cv2.Line(imgHand, end, far, scalar, 2, LineTypes.AntiAlias);
                     Cv2.Circle(imgHand, far, 5, scalar, -1, LineTypes.AntiAlias);
                 }
             }
