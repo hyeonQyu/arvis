@@ -127,7 +127,7 @@ public class Webcam2:WebCamera
         _cvt3List.Clear();
 
         // 결과 출력
-        output = OpenCvSharp.Unity.MatToTexture(imgFrame, output);
+        output = OpenCvSharp.Unity.MatToTexture(imgHand, output);
         return true;
     }
 
