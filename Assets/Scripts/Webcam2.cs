@@ -52,7 +52,7 @@ public class Webcam2:WebCamera
     private CascadeClassifier _faceCascadeClassifer;
 
     // 같은 그룹의 점들을 결정할 거리 임계값
-    public const int NeighborhoodDistanceThreadhold = 80;
+    private int _neighborhoodDistanceThreadhold;
 
     // 그룹화 되어 간결해진 꼭짓점
     private List<Point> _mainPoint;
@@ -60,10 +60,13 @@ public class Webcam2:WebCamera
     // 녹화할 프레임의 수
     private const int _recordFrameCount = 150;
 
-    OpenCvSharp.Rect _boundingRect;
+    private OpenCvSharp.Rect _boundingRect;
 
-    Point _center;
-    double _radius;
+    // 손의 중심점과 손의 크기
+    private Point _center;
+    private double _radius;
+
+    private bool _isCorrectDetection;
 
     protected override void Awake()
     {
@@ -97,8 +100,6 @@ public class Webcam2:WebCamera
 
         // 손의 임시 중앙을 찾음
         _center = GetHandCenter(imgMask);
-//        Debug.Log("임시중앙: " + _center);
-//        Point tmpCenter = new Point(_center.X, _center.Y);
 
         // 손의 점을 얻음
         Mat imgHand = GetHandLineAndPoint(imgFrame, imgMask);
@@ -121,15 +122,15 @@ public class Webcam2:WebCamera
         // 임시로 점을 찍어 출력
         for(int i = 0; i < fingerNum; i++)
         {
-            //Cv2.Circle(imgHand, fingerPoint[i], 5, new Scalar(255, 0, 0), -1, LineTypes.AntiAlias);
+            Cv2.Circle(imgHand, fingerPoint[i], 5, new Scalar(255, 0, 0), -1, LineTypes.AntiAlias);
         }
 
         _mainPoint.Clear();
         _cvt3List.Clear();
 
-        // 결과 출력
-//        Cv2.Circle(imgHand, _center, 3, new Scalar(255, 0, 0), 2);
-//        Cv2.Circle(imgHand, tmpCenter, 3, new Scalar(255, 0, 0), 2);
+        if(!_isCorrectDetection)
+            return false;
+
         output = OpenCvSharp.Unity.MatToTexture(imgHand, output);
         Debug.Log("반지름: " + _radius);
         return true;
@@ -214,7 +215,6 @@ public class Webcam2:WebCamera
         Cv2.Canny(imgGray, imgCanny, 100, 200);
         //bitwise_not(imgCanny, imgCanny);  // 색상반전
 
-
         // 윤곽선 검출을 위한 변수
         Point[][] contours;
         HierarchyIndex[] hierarchy;
@@ -261,30 +261,33 @@ public class Webcam2:WebCamera
             Cv2.FloodFill(imgFillHand, _center, new Scalar(255, 0, 0));
             Cv2.DrawContours(imgHand, hull, largestContourIndex, new Scalar(0, 0, 255));
 
+            Point prevCenter = _center;
             // 손 중앙 갱신
             _center = GetHandCenter(imgFillHand);
-            Debug.Log("실제중앙: " + _center);
             Cv2.Circle(imgHand, _center, /*(int)radius*/5, new Scalar(0, 0, 255));
 
-            // Draw defect  기존의 점과 선을 그리던 함수 -> 나중에 주석처리
-            for(int i = 0; i < defects[largestContourIndex].Length; i++)
-            {
-                Point start, end, far;
-                int d = defects[largestContourIndex][i].Item3;
+            // 인식이 부정확하지 않은지 평가
+            EvaluateDetection(prevCenter); 
 
-                start = contours[largestContourIndex][defects[largestContourIndex][i].Item0];
-                end = contours[largestContourIndex][defects[largestContourIndex][i].Item1];
-                far = contours[largestContourIndex][defects[largestContourIndex][i].Item2];
+            //// Draw defect  기존의 점과 선을 그리던 함수 -> 나중에 주석처리
+            //for(int i = 0; i < defects[largestContourIndex].Length; i++)
+            //{
+            //    Point start, end, far;
+            //    int d = defects[largestContourIndex][i].Item3;
 
-                if(d > 1)
-                {
-                    Scalar scalar = Scalar.RandomColor();
-                    Cv2.Line(imgHand, start, far, scalar, 2, LineTypes.AntiAlias);
-                    Cv2.Line(imgHand, end, far, scalar, 2, LineTypes.AntiAlias);
-                    Cv2.Circle(imgHand, far, 5, scalar, -1, LineTypes.AntiAlias);
-                    Debug.Log(i + " " + far);
-                }
-            }
+            //    start = contours[largestContourIndex][defects[largestContourIndex][i].Item0];
+            //    end = contours[largestContourIndex][defects[largestContourIndex][i].Item1];
+            //    far = contours[largestContourIndex][defects[largestContourIndex][i].Item2];
+
+            //    if(d > 1)
+            //    {
+            //        Scalar scalar = Scalar.RandomColor();
+            //        Cv2.Line(imgHand, start, far, scalar, 2, LineTypes.AntiAlias);
+            //        Cv2.Line(imgHand, end, far, scalar, 2, LineTypes.AntiAlias);
+            //        Cv2.Circle(imgHand, far, 5, scalar, -1, LineTypes.AntiAlias);
+            //        Debug.Log(i + " " + far);
+            //    }
+            //}
 
             // 새롭게 중요 꼭짓점을 그리는 코드
             for(int i = 0; i < newPoints.Count; i++)
@@ -309,8 +312,10 @@ public class Webcam2:WebCamera
     }
 
     // 가까운 점들을 그룹화 하는 함수
-    private static List<List<Point>> GroupPoint(Point[] contours, Vec4i[] defect)
+    private List<List<Point>> GroupPoint(Point[] contours, Vec4i[] defect)
     {
+        _neighborhoodDistanceThreadhold = (int) (_radius / 2 * 0.8);
+
         // 그룹들을 저장할 List
         List<List<Point>> newPoints = new List<List<Point>>();
         for(int i = 0; i < defect.Length; i++)
@@ -335,8 +340,8 @@ public class Webcam2:WebCamera
                 if(groupedIndex.Contains(j))
                     continue;
 
-                if(NeighborhoodDistanceThreadhold > Math.Abs(contours[defect[i].Item2].X - contours[defect[j].Item2].X) &&
-                         NeighborhoodDistanceThreadhold > Math.Abs(contours[defect[i].Item2].Y - contours[defect[j].Item2].Y))
+                if(_neighborhoodDistanceThreadhold > Math.Abs(contours[defect[i].Item2].X - contours[defect[j].Item2].X) &&
+                         _neighborhoodDistanceThreadhold > Math.Abs(contours[defect[i].Item2].Y - contours[defect[j].Item2].Y))
                 {
                     newPoints[i].Add(contours[defect[j].Item2]);
                     groupedIndex.Add(j);
@@ -371,6 +376,19 @@ public class Webcam2:WebCamera
         }
 
         return fingerPoint;
+    }
+
+    private void EvaluateDetection(Point prevCenter)
+    {
+        double maxDistance = _radius * 3 / 2;
+        if(_radius < 50 || _radius > 170)
+            _isCorrectDetection = false;
+        else if(maxDistance < Math.Abs(_center.X - prevCenter.X) || maxDistance < Math.Abs(_center.Y - prevCenter.Y))
+        {
+            _isCorrectDetection = false;
+        }
+
+        _isCorrectDetection = true;
     }
 
     private void InitializeHsv()
