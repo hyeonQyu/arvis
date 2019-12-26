@@ -1,195 +1,83 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using OpenCvSharp;
-using OpenCvSharp.Demo;
 using System;
 
-/*public struct DistanceAndIndex
+public struct DistanceAndIndex
 {
-    public double distance;
-    public int index;
+    public double Distance;
+    public int Index;
 
     public DistanceAndIndex(double distance, int index)
     {
-        this.distance = distance;
-        this.index = index;
+        this.Distance = distance;
+        this.Index = index;
     }
-}*/
+}
 
-public class Webcam2:WebCamera
+public class HandDetector
 {
-    [Header("Object to Move")]
-    public GameObject _object;
-
-    [Header("Finger & Center")]
-    public GameObject[] _handObject;
-
-    List<Vector3> _cvt3List = new List<Vector3>(); // Converted Vector3 List 
-
-    private int _rangeCount = 0;
-
-    private Scalar _skin = new Scalar(95, 127, 166);
-    private Scalar _table = new Scalar(176, 211, 238);
-
-    private Mat _rgbColor;
-    private Mat _rgbColor2;
-    private Mat _hsvColor;
-
-    private int _hue;
-    private int _saturation;
-    private int _value;
-
-    private int _lowHue, _highHue;
-    private int _lowHue1, _lowHue2, _highHue1, _highHue2;
-
-    // 얼굴 인식을 위한 학습된 모델
-    private CascadeClassifier _faceCascadeClassifer;
-
     // 같은 그룹의 점들을 결정할 거리 임계값
     private int _neighborhoodDistanceThreadhold;
 
     // 그룹화 되어 간결해진 꼭짓점
     private List<Point> _mainPoint;
+    public List<Point> MainPoint
+    {
+        get
+        {
+            return _mainPoint;
+        }
+    }
 
     // 손의 중심점과 손의 크기
     private Point _center;
+    public Point Center
+    {
+        get
+        {
+            return _center;
+        }
+    }
     private double _radius;
 
-    private bool _isCorrectDetection;
-
-    protected override void Awake()
+    // 손가락 끝 점
+    private List<Point> _fingerPoint;
+    public List<Point> FingerPoint
     {
-        InitializeHsv();
-
-        _faceCascadeClassifer = new CascadeClassifier(Application.dataPath + "/Resources/haarcascade_frontalface_alt.xml");
-
-        _mainPoint = new List<Point>();
-
-        base.Awake();
-        this.forceFrontalCamera = true;
+        get
+        {
+            return _fingerPoint;
+        }
     }
 
-    // Our sketch generation function
-    protected override bool ProcessTexture(WebCamTexture input, ref Texture2D output)
+    // 인식이 제대로 이루어졌는지 확인
+    private bool _isCorrectDetection;
+    public bool IsCorrectDetection
     {
-        _isCorrectDetection = true;
+        set
+        {
+            _isCorrectDetection = value;
+        }
+        get
+        {
+            return _isCorrectDetection;
+        }
+    }
 
-        // input 영상이 imgFrame
-        Mat imgFrame = OpenCvSharp.Unity.TextureToMat(input, TextureParameters);
-        Mat imgMask = new Mat();
+    public HandDetector()
+    {
+        _mainPoint = new List<Point>();
+    }
 
-        // 얼굴 제거
-        RemoveFaces(imgFrame, imgFrame);
-
-        // 피부색 영역만 검출
-        imgMask = GetSkinMask(imgFrame);
-
-        // 손의 임시 중앙을 찾음
+    public Mat GetHandLineAndPoint(Mat img, Mat imgMask)
+    {
+        // 손의 임시 중앙
         _center = GetHandCenter(imgMask);
 
-        // 손의 점을 얻음
-        Mat imgHand = GetHandLineAndPoint(imgFrame, imgMask);
-
-        // 손 인식의 정확성 평가
-        if(!_isCorrectDetection)
-            return false;
-
-        // 손가락 꼭짓점을 찾음
-        int fingerNum = 5;
-        // fingerPoint에 손가락 끝의 좌표값 저장
-        List<Point> fingerPoint =  GetFingerPoint(fingerNum);
-
-        _mainPoint.Clear();
-        _cvt3List.Clear();
-
-        // 가상 손 좌표와 맵핑
-        InputPoint(fingerPoint);
-
-        // 가상 손을 움직임
-        for(int i = 0; i < _handObject.Length; i++)
-        {
-            _handObject[i].GetComponent<HandSkeleton>().MoveTransform(_cvt3List[i]);
-        }
-
-        // 임시로 점을 찍어 출력
-        for(int i = 0; i < fingerNum; i++)
-        {
-            Cv2.Circle(imgHand, fingerPoint[i], 5, new Scalar(255, 0, 0), -1, LineTypes.AntiAlias);
-        }
-
-        output = OpenCvSharp.Unity.MatToTexture(imgFrame, output);
-        return true;
-    }
-
-    private Mat GetSkinMask(Mat img, int minCr = 128, int maxCr = 170, int minCb = 73, int maxCb = 158)
-    {
-        // 블러 처리
-        Mat imgBlur = new Mat();
-        Cv2.GaussianBlur(img, imgBlur, new Size(5, 5), 0);
-
-        // HSV로 변환
-        Mat imgHsv = new Mat(imgBlur.Size(), MatType.CV_8UC3);
-        Cv2.CvtColor(imgBlur, imgHsv, ColorConversionCodes.BGR2HSV);
-
-        //지정한 HSV 범위를 이용하여 영상을 이진화
-        Mat imgMask1, imgMask2;
-        imgMask1 = new Mat();
-        imgMask2 = new Mat();
-        Cv2.InRange(imgHsv, new Scalar(_lowHue1, 50, 50), new Scalar(_highHue1, 255, 255), imgMask1);
-        if(_rangeCount == 2)
-        {
-            Cv2.InRange(imgHsv, new Scalar(_lowHue2, 50, 50), new Scalar(_highHue2, 255, 255), imgMask2);
-            imgMask1 |= imgMask2;
-        }
-
-        //morphological opening 작은 점들을 제거
-        Cv2.Erode(imgMask1, imgMask1, Cv2.GetStructuringElement(MorphShapes.Ellipse, new Size(5, 5)));
-        Cv2.Dilate(imgMask1, imgMask1, Cv2.GetStructuringElement(MorphShapes.Ellipse, new Size(5, 5)));
-
-        //morphological closing 영역의 구멍 메우기
-        Cv2.Dilate(imgMask1, imgMask1, Cv2.GetStructuringElement(MorphShapes.Ellipse, new Size(5, 5)));
-        Cv2.Erode(imgMask1, imgMask1, Cv2.GetStructuringElement(MorphShapes.Ellipse, new Size(5, 5)));
-
-        return imgMask1;
-    }
-
-    private void RemoveFaces(Mat input, Mat output)
-    {
-        OpenCvSharp.Rect[] faces;
-        Mat frameGray = new Mat();
-
-        Cv2.CvtColor(input, frameGray, ColorConversionCodes.BGR2GRAY);
-        Cv2.EqualizeHist(frameGray, frameGray);
-
-        faces = _faceCascadeClassifer.DetectMultiScale(frameGray, 1.1, 2, HaarDetectionType.ScaleImage, new Size(120, 120));
-
-        for(int i = 0; i < faces.Length; i++)
-        {
-            Cv2.Rectangle(output, new Point(faces[i].X, faces[i].Y), new Point(faces[i].X + faces[i].Width, faces[i].Y + faces[i].Height), new Scalar(0, 0, 0), -1);
-        }
-    }
-
-    private Point GetHandCenter(Mat img)
-    {
-        // 거리 변환 행렬을 저장할 변수
-        Mat dstMatrix = new Mat();
-        Cv2.DistanceTransform(img, dstMatrix, DistanceTypes.L2, DistanceMaskSize.Mask5);
-
-        // 거리 변환 행렬에서 값(거리)이 가장 큰 픽셀의 좌표와 값을 얻어옴
-        int[] maxIdx = new int[2];
-        double null1;
-        int null2;
-        Cv2.MinMaxIdx(dstMatrix, out null1, out _radius, out null2, out maxIdx[0], img);
-
-        return new Point(maxIdx[1], maxIdx[0]);
-    }
-
-    private Mat GetHandLineAndPoint(Mat img, Mat imgMask1)
-    {
         // 원본영상 & 마스크이미지 -> 피부색 영역 검출
         Mat imgSkin = new Mat();
-        Cv2.BitwiseAnd(img, img, imgSkin, imgMask1);
+        Cv2.BitwiseAnd(img, img, imgSkin, imgMask);
 
         // 피부색 추출 -> GrayScale
         Mat imgGray = new Mat();
@@ -297,6 +185,33 @@ public class Webcam2:WebCamera
         return imgHand;
     }
 
+    public void DrawFingerPointAtImg(Mat img)
+    {
+        int fingerNum = 5;
+        _fingerPoint = GetFingerPoint(fingerNum);
+
+        // 임시로 점을 찍어 출력
+        for(int i = 0; i < fingerNum; i++)
+        {
+            Cv2.Circle(img, _fingerPoint[i], 5, new Scalar(255, 0, 0), -1, LineTypes.AntiAlias);
+        }
+    }
+
+    private Point GetHandCenter(Mat img)
+    {
+        // 거리 변환 행렬을 저장할 변수
+        Mat dstMatrix = new Mat();
+        Cv2.DistanceTransform(img, dstMatrix, DistanceTypes.L2, DistanceMaskSize.Mask5);
+
+        // 거리 변환 행렬에서 값(거리)이 가장 큰 픽셀의 좌표와 값을 얻어옴
+        int[] maxIdx = new int[2];
+        double null1;
+        int null2;
+        Cv2.MinMaxIdx(dstMatrix, out null1, out _radius, out null2, out maxIdx[0], img);
+
+        return new Point(maxIdx[1], maxIdx[0]);
+    }
+
     // 가까운 점들을 그룹화 하는 함수
     private List<List<Point>> GroupPoint(Point[] contours, Vec4i[] defect)
     {
@@ -339,6 +254,7 @@ public class Webcam2:WebCamera
         return newPoints;
     }
 
+    // 손가락 끝점을 얻음
     private List<Point> GetFingerPoint(int fingerNum = 5)
     {
         // 손가락 좌표를 저장하여 반환할 변수 선언
@@ -364,6 +280,7 @@ public class Webcam2:WebCamera
         return fingerPoint;
     }
 
+    // 인식이 제대로 이루어졌는지 평가
     private void EvaluateDetection(Point prevCenter)
     {
         //Debug.Log("이전 중앙: " + prevCenter);
@@ -373,77 +290,18 @@ public class Webcam2:WebCamera
         double maxDistance = _radius * 3 / 2;
         if(_radius < 30 || _radius > 190)
         {
-            //Debug.Log("반지름이 너무 작거나 큼!----------------------------------------------------------------------------------");
+            Debug.Log("반지름이 너무 작거나 큼!----------------------------------------------------------------------------------");
             _isCorrectDetection = false;
             return;
         }
         else if(maxDistance < Math.Abs(_center.X - prevCenter.X) || maxDistance < Math.Abs(_center.Y - prevCenter.Y))
         {
-            //Debug.Log("중앙이 많이 차이남!---------------------------------------------------------------------------------------");
+            Debug.Log("중앙이 많이 차이남!---------------------------------------------------------------------------------------");
             _isCorrectDetection = false;
             return;
         }
 
-        //Debug.Log("잘됨!-----------------------------------------------------------------------------------------------------");
+        Debug.Log("잘됨!-----------------------------------------------------------------------------------------------------");
         _isCorrectDetection = true;
-    }
-
-    private void InitializeHsv()
-    {
-        _rgbColor = new Mat(1, 1, MatType.CV_8UC3, _skin);
-        _rgbColor2 = new Mat(1, 1, MatType.CV_8UC3, _table);
-        _hsvColor = new Mat();
-
-        Cv2.CvtColor(_rgbColor, _hsvColor, ColorConversionCodes.BGR2HSV);
-
-        _hue = (int)_hsvColor.At<Vec3b>(0, 0)[0];
-        _saturation = (int)_hsvColor.At<Vec3b>(0, 0)[1];
-        _value = (int)_hsvColor.At<Vec3b>(0, 0)[2];
-
-        _lowHue = _hue - 7;
-        _highHue = _hue + 7;
-
-        if(_lowHue < 10)
-        {
-            _rangeCount = 2;
-
-            _highHue1 = 180;
-            _lowHue1 = _lowHue + 180;
-            _highHue2 = _highHue;
-            _lowHue2 = 0;
-        }
-        else if(_highHue > 170)
-        {
-            _rangeCount = 2;
-
-            _highHue1 = _lowHue;
-            _lowHue1 = 180;
-            _highHue2 = _highHue - 180;
-            _lowHue2 = 0;
-        }
-        else
-        {
-            _rangeCount = 1;
-
-            _lowHue1 = _lowHue;
-            _highHue1 = _highHue;
-        }
-    }
-
-    private Vector3 Point2Vector3(Point _point)
-    {
-        Vector3 cvt3 = new Vector3(0, 0, _object.transform.position.z);
-        cvt3.x = (_point.X - gameObject.GetComponent<RectTransform>().sizeDelta.x / 2) * gameObject.GetComponent<Transform>().transform.lossyScale.x;
-        cvt3.y = (gameObject.GetComponent<RectTransform>().sizeDelta.y / 2 - _point.Y) * gameObject.GetComponent<Transform>().transform.lossyScale.y;
-        return cvt3;
-    }
-
-    private void InputPoint(List<Point> pointList)
-    {
-        _cvt3List.Add(Point2Vector3(_center));
-        for(int i = 0; i < pointList.Count; i++)
-        {
-            _cvt3List.Add(Point2Vector3(pointList[i]));
-        }
     }
 }
