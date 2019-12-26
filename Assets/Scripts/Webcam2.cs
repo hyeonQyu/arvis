@@ -132,7 +132,6 @@ public class Webcam2:WebCamera
             return false;
 
         output = OpenCvSharp.Unity.MatToTexture(imgHand, output);
-        Debug.Log("반지름: " + _radius);
         return true;
     }
 
@@ -380,14 +379,25 @@ public class Webcam2:WebCamera
 
     private void EvaluateDetection(Point prevCenter)
     {
+        Debug.Log("이전 중앙: " + prevCenter);
+        Debug.Log("현재 중앙: " + _center);
+        Debug.Log("반지름: " + _radius);
+
         double maxDistance = _radius * 3 / 2;
         if(_radius < 50 || _radius > 170)
+        {
+            Debug.Log("반지름이 너무 작거나 큼!----------------------------------------------------------------------------------");
             _isCorrectDetection = false;
+            return;
+        }
         else if(maxDistance < Math.Abs(_center.X - prevCenter.X) || maxDistance < Math.Abs(_center.Y - prevCenter.Y))
         {
+            Debug.Log("중앙이 많이 차이남!---------------------------------------------------------------------------------------");
             _isCorrectDetection = false;
+            return;
         }
 
+        Debug.Log("잘됨!-----------------------------------------------------------------------------------------------------");
         _isCorrectDetection = true;
     }
 
