@@ -88,6 +88,8 @@ public class Webcam2:WebCamera
     // Our sketch generation function
     protected override bool ProcessTexture(WebCamTexture input, ref Texture2D output)
     {
+        _isCorrectDetection = true;
+
         // input 영상이 imgFrame
         Mat imgFrame = OpenCvSharp.Unity.TextureToMat(input, TextureParameters);
         Mat imgMask = new Mat();
@@ -104,11 +106,17 @@ public class Webcam2:WebCamera
         // 손의 점을 얻음
         Mat imgHand = GetHandLineAndPoint(imgFrame, imgMask);
 
+        // 손 인식의 정확성 평가
+        if(!_isCorrectDetection)
+            return false;
+
         // 손가락 꼭짓점을 찾음
         int fingerNum = 5;
         // fingerPoint에 손가락 끝의 좌표값 저장
-        List<Point> fingerPoint = new List<Point>(fingerNum);
-        fingerPoint = GetFingerPoint(fingerNum);
+        List<Point> fingerPoint =  GetFingerPoint(fingerNum);
+
+        _mainPoint.Clear();
+        _cvt3List.Clear();
 
         // 가상 손 좌표와 맵핑
         InputPoint(fingerPoint);
@@ -125,13 +133,7 @@ public class Webcam2:WebCamera
             Cv2.Circle(imgHand, fingerPoint[i], 5, new Scalar(255, 0, 0), -1, LineTypes.AntiAlias);
         }
 
-        _mainPoint.Clear();
-        _cvt3List.Clear();
-
-        if(!_isCorrectDetection)
-            return false;
-
-        output = OpenCvSharp.Unity.MatToTexture(imgHand, output);
+        output = OpenCvSharp.Unity.MatToTexture(imgFrame, output);
         return true;
     }
 
@@ -266,7 +268,7 @@ public class Webcam2:WebCamera
             Cv2.Circle(imgHand, _center, /*(int)radius*/5, new Scalar(0, 0, 255));
 
             // 인식이 부정확하지 않은지 평가
-            EvaluateDetection(prevCenter); 
+            EvaluateDetection(prevCenter);
 
             //// Draw defect  기존의 점과 선을 그리던 함수 -> 나중에 주석처리
             //for(int i = 0; i < defects[largestContourIndex].Length; i++)
@@ -281,10 +283,10 @@ public class Webcam2:WebCamera
             //    if(d > 1)
             //    {
             //        Scalar scalar = Scalar.RandomColor();
-            //        Cv2.Line(imgHand, start, far, scalar, 2, LineTypes.AntiAlias);
-            //        Cv2.Line(imgHand, end, far, scalar, 2, LineTypes.AntiAlias);
-            //        Cv2.Circle(imgHand, far, 5, scalar, -1, LineTypes.AntiAlias);
-            //        Debug.Log(i + " " + far);
+            //        //Cv2.Line(imgHand, start, far, scalar, 2, LineTypes.AntiAlias);
+            //        //Cv2.Line(imgHand, end, far, scalar, 2, LineTypes.AntiAlias);
+            //        //Cv2.Circle(imgHand, end, 5, scalar, -1, LineTypes.AntiAlias);
+            //        Debug.Log(i + " " + end);
             //    }
             //}
 
@@ -303,7 +305,7 @@ public class Webcam2:WebCamera
                 point.X = point.X / newPoints[i].Count;
                 point.Y = point.Y / newPoints[i].Count;
                 _mainPoint.Add(point);
-                //Cv2.Circle(imgHand, point, 5, new Scalar(255, 0, 0), -1, LineTypes.AntiAlias);
+                Cv2.Circle(imgHand, point, 5, new Scalar(0, 255, 0), -1, LineTypes.AntiAlias);
             }
         }
 
@@ -313,7 +315,7 @@ public class Webcam2:WebCamera
     // 가까운 점들을 그룹화 하는 함수
     private List<List<Point>> GroupPoint(Point[] contours, Vec4i[] defect)
     {
-        _neighborhoodDistanceThreadhold = (int) (_radius / 2 * 0.8);
+        _neighborhoodDistanceThreadhold = (int)(_radius / 2 * 0.8);
 
         // 그룹들을 저장할 List
         List<List<Point>> newPoints = new List<List<Point>>();
@@ -331,7 +333,7 @@ public class Webcam2:WebCamera
             if(groupedIndex.Contains(i))
                 continue;
 
-            newPoints[i].Add(contours[defect[i].Item2]);
+            newPoints[i].Add(contours[defect[i].Item1]);
             groupedIndex.Add(i);
 
             for(int j = i + 1; j < defect.Length; j++)
@@ -339,10 +341,10 @@ public class Webcam2:WebCamera
                 if(groupedIndex.Contains(j))
                     continue;
 
-                if(_neighborhoodDistanceThreadhold > Math.Abs(contours[defect[i].Item2].X - contours[defect[j].Item2].X) &&
-                         _neighborhoodDistanceThreadhold > Math.Abs(contours[defect[i].Item2].Y - contours[defect[j].Item2].Y))
+                if(_neighborhoodDistanceThreadhold > Math.Abs(contours[defect[i].Item1].X - contours[defect[j].Item1].X) &&
+                         _neighborhoodDistanceThreadhold > Math.Abs(contours[defect[i].Item1].Y - contours[defect[j].Item1].Y))
                 {
-                    newPoints[i].Add(contours[defect[j].Item2]);
+                    newPoints[i].Add(contours[defect[j].Item1]);
                     groupedIndex.Add(j);
                 }
 
@@ -362,7 +364,7 @@ public class Webcam2:WebCamera
         for(int i = 0; i < _mainPoint.Count; i++)
         {
             // center와의 거리값과 _maintPoint에서의 인덱스저장(Sorting 되고 난후 엔덱스를 찾기위해)
-            distanceAndIndex.Add(new DistanceAndIndex(Math.Exp(_center.X - _mainPoint[i].X) + Math.Exp(_center.Y - _mainPoint[i].Y), i));
+            distanceAndIndex.Add(new DistanceAndIndex(Math.Sqrt(Math.Pow(_center.X - _mainPoint[i].X, 2) + Math.Pow(_center.Y - _mainPoint[i].Y, 2)), i));
         }
 
         // 내림차순으로 정렬
@@ -379,25 +381,25 @@ public class Webcam2:WebCamera
 
     private void EvaluateDetection(Point prevCenter)
     {
-        Debug.Log("이전 중앙: " + prevCenter);
+        //Debug.Log("이전 중앙: " + prevCenter);
         Debug.Log("현재 중앙: " + _center);
-        Debug.Log("반지름: " + _radius);
+        //Debug.Log("반지름: " + _radius);
 
         double maxDistance = _radius * 3 / 2;
-        if(_radius < 50 || _radius > 170)
+        if(_radius < 30 || _radius > 190)
         {
-            Debug.Log("반지름이 너무 작거나 큼!----------------------------------------------------------------------------------");
+            //Debug.Log("반지름이 너무 작거나 큼!----------------------------------------------------------------------------------");
             _isCorrectDetection = false;
             return;
         }
         else if(maxDistance < Math.Abs(_center.X - prevCenter.X) || maxDistance < Math.Abs(_center.Y - prevCenter.Y))
         {
-            Debug.Log("중앙이 많이 차이남!---------------------------------------------------------------------------------------");
+            //Debug.Log("중앙이 많이 차이남!---------------------------------------------------------------------------------------");
             _isCorrectDetection = false;
             return;
         }
 
-        Debug.Log("잘됨!-----------------------------------------------------------------------------------------------------");
+        //Debug.Log("잘됨!-----------------------------------------------------------------------------------------------------");
         _isCorrectDetection = true;
     }
 
