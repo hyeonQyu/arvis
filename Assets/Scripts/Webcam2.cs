@@ -88,7 +88,6 @@ public class Webcam2:WebCamera
         // input 영상이 imgFrame
         Mat imgFrame = OpenCvSharp.Unity.TextureToMat(input, TextureParameters);
         Mat imgMask = new Mat();
-        Debug.Log("size: " + imgFrame.Size());
 
         // 얼굴 제거
         RemoveFaces(imgFrame, imgFrame);
@@ -98,6 +97,8 @@ public class Webcam2:WebCamera
 
         // 손의 임시 중앙을 찾음
         _center = GetHandCenter(imgMask);
+//        Debug.Log("임시중앙: " + _center);
+//        Point tmpCenter = new Point(_center.X, _center.Y);
 
         // 손의 점을 얻음
         Mat imgHand = GetHandLineAndPoint(imgFrame, imgMask);
@@ -120,14 +121,17 @@ public class Webcam2:WebCamera
         // 임시로 점을 찍어 출력
         for(int i = 0; i < fingerNum; i++)
         {
-            Cv2.Circle(imgHand, fingerPoint[i], 5, new Scalar(255, 0, 0), -1, LineTypes.AntiAlias);
+            //Cv2.Circle(imgHand, fingerPoint[i], 5, new Scalar(255, 0, 0), -1, LineTypes.AntiAlias);
         }
 
         _mainPoint.Clear();
         _cvt3List.Clear();
 
         // 결과 출력
+//        Cv2.Circle(imgHand, _center, 3, new Scalar(255, 0, 0), 2);
+//        Cv2.Circle(imgHand, tmpCenter, 3, new Scalar(255, 0, 0), 2);
         output = OpenCvSharp.Unity.MatToTexture(imgHand, output);
+        Debug.Log("반지름: " + _radius);
         return true;
     }
 
@@ -178,28 +182,6 @@ public class Webcam2:WebCamera
             Cv2.Rectangle(output, new Point(faces[i].X, faces[i].Y), new Point(faces[i].X + faces[i].Width, faces[i].Y + faces[i].Height), new Scalar(0, 0, 0), -1);
         }
     }
-
-    //private Point GetHandCenter(ref Mat imgForFindHand, ref Mat imgToDraw)
-    //{
-    //    double radiusInner, radiusOuter, radius;
-    //    Point centerInner, centerOuter, center;
-
-    //    // 손바닥의 중심을 찾음
-    //    centerInner = GetPalmCenter(imgForFindHand, out radiusInner);
-    //    Debug.Log(centerInner + " " + radiusInner);
-    //    Cv2.Circle(imgToDraw, centerInner, /*(int)radiusInner*/4, new Scalar(255, 0, 0));
-
-    //    // 손 전체의 중심을 찾음
-    //    centerOuter = new Point((_boundingRect.TopLeft.X + _boundingRect.BottomRight.X) / 2, (_boundingRect.TopLeft.Y + _boundingRect.BottomRight.Y) / 2);
-    //    radiusOuter = Math.Min(_boundingRect.Height, _boundingRect.Width) / 2;
-    //    Cv2.Circle(imgToDraw, centerOuter, /*(int)radiusOuter*/4, new Scalar(0, 255, 0));
-
-    //    center = new Point((centerInner.X * 1.12 + centerOuter.X) / 2, (centerInner.Y * 1.12 + centerOuter.Y) / 2);
-    //    radius = ((radiusInner + radiusOuter) / 2) * 1.1;
-    //    Cv2.Circle(imgToDraw, center, /*(int)radius*/5, new Scalar(0, 0, 255));
-
-    //    return center;
-    //}
 
     private Point GetHandCenter(Mat img)
     {
@@ -266,14 +248,11 @@ public class Webcam2:WebCamera
                 largestArea = (int)a;
                 largestContourIndex = i;                //Store the index of largest contour
             }
-
         }
 
         // defects의 점들을 그룹화 하여 newPoints에 저장
         List<List<Point>> newPoints;
         newPoints = GroupPoint(contours[largestContourIndex], defects[largestContourIndex]);
-
-        Debug.Log("large_index : " + largestContourIndex);
 
         if(largestArea > 1)
         {
@@ -281,33 +260,32 @@ public class Webcam2:WebCamera
             Cv2.DrawContours(imgFillHand, contours, largestContourIndex, new Scalar(255, 0, 0));
             Cv2.FloodFill(imgFillHand, _center, new Scalar(255, 0, 0));
             Cv2.DrawContours(imgHand, hull, largestContourIndex, new Scalar(0, 0, 255));
-            Debug.Log(defects[largestContourIndex].Length);
 
             // 손 중앙 갱신
             _center = GetHandCenter(imgFillHand);
+            Debug.Log("실제중앙: " + _center);
             Cv2.Circle(imgHand, _center, /*(int)radius*/5, new Scalar(0, 0, 255));
-            // Draw defect  기존의 점과 선을 그리던 함수는 주석했다.
-            /*
-            for (int i = 0; i < defects[largest_contour_index].Length; i++)
+
+            // Draw defect  기존의 점과 선을 그리던 함수 -> 나중에 주석처리
+            for(int i = 0; i < defects[largestContourIndex].Length; i++)
             {
                 Point start, end, far;
-                int d = defects[largest_contour_index][i].Item3;
+                int d = defects[largestContourIndex][i].Item3;
 
-                start = contours[largest_contour_index][defects[largest_contour_index][i].Item0];
-                end = contours[largest_contour_index][defects[largest_contour_index][i].Item1];
-                far = contours[largest_contour_index][defects[largest_contour_index][i].Item2];
-                //}
-                string log = i + "   " + far + " " + d;
-                Debug.Log(log);
-                if (d > 1)
+                start = contours[largestContourIndex][defects[largestContourIndex][i].Item0];
+                end = contours[largestContourIndex][defects[largestContourIndex][i].Item1];
+                far = contours[largestContourIndex][defects[largestContourIndex][i].Item2];
+
+                if(d > 1)
                 {
                     Scalar scalar = Scalar.RandomColor();
-                    Cv2.Line(img_hand, start, far, scalar, 2, LineTypes.AntiAlias);
-                    Cv2.Line(img_hand, end, far, scalar, 2, LineTypes.AntiAlias);
-                    Cv2.Circle(img_hand, far, 5, scalar, -1, LineTypes.AntiAlias);
+                    Cv2.Line(imgHand, start, far, scalar, 2, LineTypes.AntiAlias);
+                    Cv2.Line(imgHand, end, far, scalar, 2, LineTypes.AntiAlias);
+                    Cv2.Circle(imgHand, far, 5, scalar, -1, LineTypes.AntiAlias);
+                    Debug.Log(i + " " + far);
                 }
             }
-            */
+
             // 새롭게 중요 꼭짓점을 그리는 코드
             for(int i = 0; i < newPoints.Count; i++)
             {
@@ -323,12 +301,9 @@ public class Webcam2:WebCamera
                 point.X = point.X / newPoints[i].Count;
                 point.Y = point.Y / newPoints[i].Count;
                 _mainPoint.Add(point);
-                Cv2.Circle(imgHand, point, 5, new Scalar(0, 255, 255), -1, LineTypes.AntiAlias);
+                //Cv2.Circle(imgHand, point, 5, new Scalar(255, 0, 0), -1, LineTypes.AntiAlias);
             }
         }
-        Debug.Log("---------------");
-
-        //_boundingRect = Cv2.BoundingRect(hull[largestContourIndex]);
 
         return imgHand;
     }
@@ -443,8 +418,8 @@ public class Webcam2:WebCamera
     private Vector3 Point2Vector3(Point _point)
     {
         Vector3 cvt3 = new Vector3(0, 0, _object.transform.position.z);
-        cvt3.x = (_point.X - gameObject.GetComponent<RectTransform>().sizeDelta.x / 2) * gameObject.GetComponentInParent<Canvas>().transform.localScale.x;
-        cvt3.y = (gameObject.GetComponent<RectTransform>().sizeDelta.y / 2 - _point.Y) * gameObject.GetComponentInParent<Canvas>().transform.localScale.y;
+        cvt3.x = (_point.X - gameObject.GetComponent<RectTransform>().sizeDelta.x / 2) * gameObject.GetComponent<Transform>().transform.lossyScale.x;
+        cvt3.y = (gameObject.GetComponent<RectTransform>().sizeDelta.y / 2 - _point.Y) * gameObject.GetComponent<Transform>().transform.lossyScale.y;
         return cvt3;
     }
 
