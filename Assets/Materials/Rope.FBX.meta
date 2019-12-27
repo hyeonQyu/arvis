@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 9c844672aef1ce34d89a58a400327ae9
+guid: aa27951cb82c7bf44a206d367d72bb9d
 ModelImporter:
   serializedVersion: 26
   internalIDToNameTable:
@@ -10,8 +10,8 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: 01 - Default
-    second: {fileID: 2100000, guid: 4fce785b588806148889873759aaf171, type: 2}
+      name: Rope
+    second: {fileID: 2100000, guid: 6dbe2212575d4054892ca83b6feee831, type: 2}
   materials:
     importMaterials: 1
     materialName: 0
@@ -44,15 +44,15 @@ ModelImporter:
       takeName: Take 001
       internalID: 0
       firstFrame: 0
-      lastFrame: 15
+      lastFrame: 60
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
       cycleOffset: 0
       loop: 0
       hasAdditiveReferencePose: 0
-      loopTime: 1
-      loopBlend: 1
+      loopTime: 0
+      loopBlend: 0
       loopBlendOrientation: 0
       loopBlendPositionY: 0
       loopBlendPositionXZ: 0
@@ -71,7 +71,7 @@ ModelImporter:
     isReadable: 0
   meshes:
     lODScreenPercentages: []
-    globalScale: 5
+    globalScale: 0.3
     meshCompression: 0
     addColliders: 0
     useSRGBMaterialColor: 1
@@ -100,7 +100,7 @@ ModelImporter:
     normalSmoothAngle: 60
     normalImportMode: 0
     tangentImportMode: 3
-    normalCalculationMode: 4
+    normalCalculationMode: 2
     legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
     blendShapeNormalImportMode: 1
     normalSmoothingSource: 0
@@ -118,7 +118,7 @@ ModelImporter:
     armStretch: 0.05
     legStretch: 0.05
     feetSpacing: 0
-    globalScale: 0.127
+    globalScale: 0.3
     rootMotionBoneName: 
     hasTranslationDoF: 0
     hasExtraRoot: 0

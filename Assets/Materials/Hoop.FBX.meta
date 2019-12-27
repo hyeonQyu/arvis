@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 9c844672aef1ce34d89a58a400327ae9
+guid: 3ef67028eb4147c46867ec5d32233abe
 ModelImporter:
   serializedVersion: 26
   internalIDToNameTable:
@@ -10,8 +10,18 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: 01 - Default
-    second: {fileID: 2100000, guid: 4fce785b588806148889873759aaf171, type: 2}
+      name: Column
+    second: {fileID: 2100000, guid: 432c334c719c0474b81a842a539d83f2, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Plane
+    second: {fileID: 2100000, guid: aac402758e7fd04419a1aea785072c2c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Ring
+    second: {fileID: 2100000, guid: 5a7d0e177a61a284881f74c5488d5972, type: 2}
   materials:
     importMaterials: 1
     materialName: 0
@@ -38,40 +48,11 @@ ModelImporter:
     animationWrapMode: 0
     extraExposedTransformPaths: []
     extraUserProperties: []
-    clipAnimations:
-    - serializedVersion: 16
-      name: Take 001
-      takeName: Take 001
-      internalID: 0
-      firstFrame: 0
-      lastFrame: 15
-      wrapMode: 0
-      orientationOffsetY: 0
-      level: 0
-      cycleOffset: 0
-      loop: 0
-      hasAdditiveReferencePose: 0
-      loopTime: 1
-      loopBlend: 1
-      loopBlendOrientation: 0
-      loopBlendPositionY: 0
-      loopBlendPositionXZ: 0
-      keepOriginalOrientation: 0
-      keepOriginalPositionY: 1
-      keepOriginalPositionXZ: 0
-      heightFromFeet: 0
-      mirror: 0
-      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
-      curves: []
-      events: []
-      transformMask: []
-      maskType: 3
-      maskSource: {instanceID: 0}
-      additiveReferencePoseFrame: 0
+    clipAnimations: []
     isReadable: 0
   meshes:
     lODScreenPercentages: []
-    globalScale: 5
+    globalScale: 0.3
     meshCompression: 0
     addColliders: 0
     useSRGBMaterialColor: 1
@@ -118,7 +99,7 @@ ModelImporter:
     armStretch: 0.05
     legStretch: 0.05
     feetSpacing: 0
-    globalScale: 0.127
+    globalScale: 0.0076200003
     rootMotionBoneName: 
     hasTranslationDoF: 0
     hasExtraRoot: 0
