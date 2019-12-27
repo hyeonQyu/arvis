@@ -78,7 +78,7 @@ public class Webcam:WebCamera
         _handDetector.MainPoint.Clear();
         _handManager.Cvt3List.Clear();
 
-        output = OpenCvSharp.Unity.MatToTexture(_imgHand, output);
+        output = OpenCvSharp.Unity.MatToTexture(_imgFrame, output);
         return true;
     }
 }
