@@ -126,7 +126,7 @@ private void InputPoint(List<Point> pointList)
     for(int i = 0; i < pointList.Count; i++)
     {
         _cvt3List.Add(Point2Vector3(pointList[i]));
-     }
+    }
 }
 ```
 
