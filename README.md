@@ -80,7 +80,7 @@ Cv2.Erode(imgMask1, imgMask1, Cv2.GetStructuringElement(MorphShapes.Ellipse, new
 
 d = radius(손바닥의 반지름) / 2 * 0.8
 
-#####통계를 통해 도출한 식이다. 손이 가까워지면 d의 값이 커지고 멀어지면 d의 값이 작아짐에 따라 제대로 통합이 된다.
+##### 통계를 통해 도출한 식이다. 손이 가까워지면 d의 값이 커지고 멀어지면 d의 값이 작아짐에 따라 제대로 통합이 된다.
 
 ![꼭짓점 수 최소화](https://user-images.githubusercontent.com/44297538/71531432-f7750880-2931-11ea-8abb-7aca4a8bc1a0.jpg)
 
