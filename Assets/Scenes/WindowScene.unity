@@ -1631,6 +1631,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: basketball
       objectReference: {fileID: 0}
+    - target: {fileID: -927199367670048503, guid: 9c844672aef1ce34d89a58a400327ae9,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: -6057140222963153312, guid: 9c844672aef1ce34d89a58a400327ae9,
         type: 3}
       propertyPath: m_Controller

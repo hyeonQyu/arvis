@@ -18,7 +18,7 @@ public struct DistanceAndIndex
 public class HandDetector
 {
     // 같은 그룹의 점들을 결정할 거리 임계값
-    private int _neighborhoodDistanceThreadhold;
+    private int _neighborhoodDistanceThreshold;
 
     // 그룹화 되어 간결해진 꼭짓점
     private List<Point> _mainPoint;
@@ -178,7 +178,7 @@ public class HandDetector
                 point.X = point.X / newPoints[i].Count;
                 point.Y = point.Y / newPoints[i].Count;
                 _mainPoint.Add(point);
-                Cv2.Circle(imgHand, point, 5, new Scalar(0, 255, 0), -1, LineTypes.AntiAlias);
+                //Cv2.Circle(imgHand, point, 5, new Scalar(0, 255, 0), -1, LineTypes.AntiAlias);
             }
         }
 
@@ -215,7 +215,7 @@ public class HandDetector
     // 가까운 점들을 그룹화 하는 함수
     private List<List<Point>> GroupPoint(Point[] contours, Vec4i[] defect)
     {
-        _neighborhoodDistanceThreadhold = (int)(_radius / 2 * 0.8);
+        _neighborhoodDistanceThreshold = (int)(_radius / 2 * 0.8);
 
         // 그룹들을 저장할 List
         List<List<Point>> newPoints = new List<List<Point>>();
@@ -241,8 +241,8 @@ public class HandDetector
                 if(groupedIndex.Contains(j))
                     continue;
 
-                if(_neighborhoodDistanceThreadhold > Math.Abs(contours[defect[i].Item1].X - contours[defect[j].Item1].X) &&
-                         _neighborhoodDistanceThreadhold > Math.Abs(contours[defect[i].Item1].Y - contours[defect[j].Item1].Y))
+                if(_neighborhoodDistanceThreshold > Math.Abs(contours[defect[i].Item1].X - contours[defect[j].Item1].X) &&
+                         _neighborhoodDistanceThreshold > Math.Abs(contours[defect[i].Item1].Y - contours[defect[j].Item1].Y))
                 {
                     newPoints[i].Add(contours[defect[j].Item1]);
                     groupedIndex.Add(j);
@@ -284,24 +284,24 @@ public class HandDetector
     private void EvaluateDetection(Point prevCenter)
     {
         //Debug.Log("이전 중앙: " + prevCenter);
-        Debug.Log("현재 중앙: " + _center);
+        //Debug.Log("현재 중앙: " + _center);
         //Debug.Log("반지름: " + _radius);
 
         double maxDistance = _radius * 3 / 2;
         if(_radius < 30 || _radius > 190)
         {
-            Debug.Log("반지름이 너무 작거나 큼!----------------------------------------------------------------------------------");
+            //Debug.Log("반지름이 너무 작거나 큼!----------------------------------------------------------------------------------");
             _isCorrectDetection = false;
             return;
         }
         else if(maxDistance < Math.Abs(_center.X - prevCenter.X) || maxDistance < Math.Abs(_center.Y - prevCenter.Y))
         {
-            Debug.Log("중앙이 많이 차이남!---------------------------------------------------------------------------------------");
+            //Debug.Log("중앙이 많이 차이남!---------------------------------------------------------------------------------------");
             _isCorrectDetection = false;
             return;
         }
 
-        Debug.Log("잘됨!-----------------------------------------------------------------------------------------------------");
+        //Debug.Log("잘됨!-----------------------------------------------------------------------------------------------------");
         _isCorrectDetection = true;
     }
 }

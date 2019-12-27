@@ -44,8 +44,8 @@ public class SkinDetector
         _saturation = (int)_hsvColor.At<Vec3b>(0, 0)[1];
         _value = (int)_hsvColor.At<Vec3b>(0, 0)[2];
 
-        _lowHue = _hue - 7;
-        _highHue = _hue + 7;
+        _lowHue = _hue - 10;
+        _highHue = _hue + 10;
 
         if(_lowHue < 10)
         {
