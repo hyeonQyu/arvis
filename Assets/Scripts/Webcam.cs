@@ -8,6 +8,7 @@ public class Webcam:WebCamera
     private Mat _imgFrame;
     private Mat _imgMask;
     private Mat _imgHand;
+    private Mat _imgMask2;
 
     SkinDetector _skinDetector;
     FaceDetector _faceDetector;
@@ -21,12 +22,20 @@ public class Webcam:WebCamera
     [SerializeField, Header("Finger & Center")]
     private GameObject[] _handObject;
 
+    // 녹화에 필요한 요소
+    private int _frameCount;
+    private int _frameIndex;
+    public const int TotalFrame = 150;
+
     protected override void Awake()
     {
         _skinDetector = new SkinDetector();
         _faceDetector = new FaceDetector();
         _handDetector = new HandDetector();
         _handManager = new HandManager(_object, _handObject, this.Surface);
+
+        _frameCount = 0;
+        _frameIndex = 0;
 
         base.Awake();
         this.forceFrontalCamera = true;
@@ -47,6 +56,8 @@ public class Webcam:WebCamera
 
         // 손의 점들을 얻음
         _imgHand = _handDetector.GetHandLineAndPoint(_imgFrame, _imgMask);
+        // 녹화를 위한 임시 마스크
+        _imgMask2 = _handDetector.GetHandLineAndPoint2(_imgFrame, _imgMask);
 
         // 손 인식이 정확하지 않으면 프레임을 업데이트 하지 않음
         if(!_handDetector.IsCorrectDetection)
