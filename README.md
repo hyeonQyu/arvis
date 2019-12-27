@@ -37,16 +37,16 @@ imgMask2 = new Mat();
 Cv2.InRange(imgHsv, new Scalar(_lowHue1, 50, 50), new Scalar(_highHue1, 255, 255), imgMask1);
 if(_rangeCount == 2)
 {
-	Cv2.InRange(imgHsv, new Scalar(_lowHue2, 50, 50), new Scalar(_highHue2, 255, 255), imgMask2);
-	imgMask1 |= imgMask2;
+    Cv2.InRange(imgHsv, new Scalar(_lowHue2, 50, 50), new Scalar(_highHue2, 255, 255), imgMask2);
+    imgMask1 |= imgMask2;
 }
 
 //morphological opening 작은 점들을 제거
-Cv2.Erode(imgMask1, imgMask1, 						Cv2.GetStructuringElement(MorphShapes.Ellipse, new Size(5, 5)));
+Cv2.Erode(imgMask1, imgMask1, Cv2.GetStructuringElement(MorphShapes.Ellipse, new Size(5, 5)));
 Cv2.Dilate(imgMask1, imgMask1, Cv2.GetStructuringElement(MorphShapes.Ellipse, new Size(5, 5)));
 
 //morphological closing 영역의 구멍 메우기
-Cv2.Dilate(imgMask1, imgMask1, 						Cv2.GetStructuringElement(MorphShapes.Ellipse, new Size(5, 5)));
+Cv2.Dilate(imgMask1, imgMask1, Cv2.GetStructuringElement(MorphShapes.Ellipse, new Size(5, 5)));
 Cv2.Erode(imgMask1, imgMask1, Cv2.GetStructuringElement(MorphShapes.Ellipse, new Size(5, 5)));
 ```
 
@@ -114,19 +114,19 @@ d = radius(손바닥의 반지름) / 2 * 0.8
 ```c#
 private Vector3 Point2Vector3(Point _point)
 {
-	Vector3 cvt3 = new Vector3(0, 0, _object.transform.position.z);
-	cvt3.x = (_point.X - gameObject.GetComponent<RectTransform>().sizeDelta.x / 2) * gameObject.GetComponent<Transform>().transform.lossyScale.x;
-	cvt3.y = (gameObject.GetComponent<RectTransform>().sizeDelta.y / 2 - _point.Y) * 	gameObject.GetComponent<Transform>().transform.lossyScale.y;
-	return cvt3;
+    Vector3 cvt3 = new Vector3(0, 0, _object.transform.position.z);
+    cvt3.x = (_point.X - gameObject.GetComponent<RectTransform>().sizeDelta.x / 2) * gameObject.GetComponent<Transform>().transform.lossyScale.x;
+    cvt3.y = (gameObject.GetComponent<RectTransform>().sizeDelta.y / 2 - _point.Y) * gameObject.GetComponent<Transform>().transform.lossyScale.y;
+    return cvt3;
 }
 
 private void InputPoint(List<Point> pointList)
 {
-	_cvt3List.Add(Point2Vector3(_center));
-	for(int i = 0; i < pointList.Count; i++)
-	{
-		_cvt3List.Add(Point2Vector3(pointList[i]));
-	}
+    _cvt3List.Add(Point2Vector3(_center));
+    for(int i = 0; i < pointList.Count; i++)
+    {
+        _cvt3List.Add(Point2Vector3(pointList[i]));
+     }
 }
 ```
 
