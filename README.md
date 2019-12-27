@@ -21,9 +21,9 @@ Mat imgHsv = new Mat(imgBlur.Size(), MatType.CV_8UC3);
 Cv2.CvtColor(imgBlur, imgHsv, ColorConversionCodes.BGR2HSV);
 ```
 
-![원본 프레임 이미지](https://user-images.githubusercontent.com/44297538/71531403-e4623880-2931-11ea-9ec0-511250cb6436.jpg)
+![원본 프레임 이미지](https://user-images.githubusercontent.com/44297538/71532197-9ea76f00-2935-11ea-85ad-cb23259cfba2.jpg)
 
-![HSV 이미지] (C:/Users/hgKim/Documents/College/3Grade/2ndSemester/CapstoneDesign1/screenshots/5-1. HSV 이미지_가림.jpg)
+![HSV 이미지](https://user-images.githubusercontent.com/44297538/71532198-9fd89c00-2935-11ea-81b5-eac9f9e45620.jpg)
 
 
 ### 영상 이진화
@@ -52,7 +52,7 @@ Cv2.Erode(imgMask1, imgMask1, Cv2.GetStructuringElement(MorphShapes.Ellipse, new
 
 ##### Cv2.CvtColor 함수에서 기본 BGR의 컬러를 HSV로 바꿔준다. 이후 Cv2.InRange 함수에서 정해진 범위 안에 들어가 있는 영역은 0으로 만들어주고, 나머지는 1로 만들어 흑백사진으로 만들어 처리를 한다. 이후 이미지 형태를 전환하기 위해 Erosion과 Dilation을 진행한다.  Erosion은 이미지를 침식시키는데, Foreground가 되는 이미지의 경계 부분을 침식시켜 Background 이미지로 전환하는 작업이다. Dilation은 이미지를 팽창시키고, Erosion과 반대의 역할을 진행한다. Opening과 Closing은 Erosion과 Dilation을 활용하여 노이즈를 없애는 방법이다. Opening에서 Erosion 수행 후 Dilation을 적용하면 작은 노이즈를 없애고, Closing에서 Dilation 수행 후 Erosion을 적용하면 전반적인 이미지가 깨끗해진다.
 
-![피부색을 검출한 Mask 이미지] (https://user-images.githubusercontent.com/44297538/71531408-e6c49280-2931-11ea-9cc1-4a782a7d01c3.jpg)
+![5-2  피부색 검출한 마스크 이미지](https://user-images.githubusercontent.com/44297538/71532246-cd254a00-2935-11ea-8123-9c811bf3dbda.jpg)
 
 
 ### 손의 윤곽선 및 꼭짓점 검출
@@ -77,8 +77,10 @@ Cv2.Erode(imgMask1, imgMask1, Cv2.GetStructuringElement(MorphShapes.Ellipse, new
 ![](https://user-images.githubusercontent.com/44297538/71531652-09a37680-2933-11ea-8d58-d76e71c325a0.JPG)
 
 ##### 일정 거리 d를 상수처럼 정의한다면 손의 크기가 달라짐에 따라, 예를 들어 손이 많이 멀어졌을 때 대부분의 점들이 통합이 되어버리는 문제가 발생하게 된다. 손의 크기에 유연하게 대처하기 위해 손바닥영역을 인식하고 반지름의 크기를 구하여 손의 크기에 따라 d의 값이 변하도록 한다. 
+
 d = radius(손바닥의 반지름) / 2 * 0.8
-통계를 통해 도출한 식이다. 손이 가까워지면 d의 값이 커지고 멀어지면 d의 값이 작아짐에 따라 제대로 통합이 된다.
+
+#####통계를 통해 도출한 식이다. 손이 가까워지면 d의 값이 커지고 멀어지면 d의 값이 작아짐에 따라 제대로 통합이 된다.
 
 ![꼭짓점 수 최소화](https://user-images.githubusercontent.com/44297538/71531432-f7750880-2931-11ea-8abb-7aca4a8bc1a0.jpg)
 
