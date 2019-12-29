@@ -3,6 +3,7 @@ This is a project to control 3D objects by hand in augmented reality.
 
 ## Generate virtual hand
 ![가상손-min](https://user-images.githubusercontent.com/44297538/71554026-2340dd00-2a5d-11ea-92dd-498606d9941f.gif)
+
 Computer vision technology recognizes human hands and creates virtual hands within Unity.
 
 ## Extract coordinates of hands
