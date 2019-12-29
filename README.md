@@ -18,6 +18,8 @@ To make the virtual hand as above, we need to extract the coordinates of the han
 
 ## Control AR object
 ![농구공-min](https://user-images.githubusercontent.com/44297538/71554028-25a33700-2a5d-11ea-9621-2418b9f8902c.gif)
+
 After the above process, you can touch the AR object with your hands.
 ![골인-min](https://user-images.githubusercontent.com/44297538/71554027-24720a00-2a5d-11ea-95ac-015020e35a23.gif)
+
 This may suggest a new game paradigm.
