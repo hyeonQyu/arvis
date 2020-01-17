@@ -1,4 +1,4 @@
-﻿
+﻿using UnityEngine;
 using System;
 using System.IO;
 
@@ -11,6 +11,9 @@ namespace OpenCvSharp
     /// </summary>
     public class CascadeClassifier : DisposableCvObject
     {
+        // 시간 측정
+        private System.Diagnostics.Stopwatch _stopWatch = new System.Diagnostics.Stopwatch();
+
         /// <summary>
         /// Track whether Dispose has been called
         /// </summary>
@@ -150,16 +153,25 @@ namespace OpenCvSharp
                 throw new ObjectDisposedException("CascadeClassifier");
             if (image == null)
                 throw new ArgumentNullException("nameof(image)");
+            _stopWatch.Start();
+
             image.ThrowIfDisposed();
 
             Size minSize0 = minSize.GetValueOrDefault(new Size());
             Size maxSize0 = maxSize.GetValueOrDefault(new Size());
+            _stopWatch.Stop();
+            //Debug.Log("FF_throw: " + _stopWatch.ElapsedMilliseconds + "ms");
+            _stopWatch.Reset();         
 
             using (var objectsVec = new VectorOfRect())
             {
+                _stopWatch.Start();
                 NativeMethods.objdetect_CascadeClassifier_detectMultiScale1(
                     ptr, image.CvPtr, objectsVec.CvPtr, 
                     scaleFactor, minNeighbors, (int)flags, minSize0, maxSize0);
+                _stopWatch.Stop();
+                //Debug.Log("FF_detect1: " + _stopWatch.ElapsedMilliseconds + "ms");
+                _stopWatch.Reset();
                 return objectsVec.ToArray();
             }
         }
@@ -193,7 +205,11 @@ namespace OpenCvSharp
                 throw new ObjectDisposedException("CascadeClassifier");
             if (image == null)
                 throw new ArgumentNullException("nameof(image)");
+            _stopWatch.Start();
             image.ThrowIfDisposed();
+            _stopWatch.Stop();
+            Debug.Log("FF_throw: " + _stopWatch.ElapsedMilliseconds + "ms");
+            _stopWatch.Reset();
 
             Size minSize0 = minSize.GetValueOrDefault(new Size());
             Size maxSize0 = maxSize.GetValueOrDefault(new Size());

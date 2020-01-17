@@ -14,10 +14,11 @@ namespace OpenCvSharp.Demo
 	/// </summary>
 	public abstract class WebCamera: MonoBehaviour
 	{
-		/// <summary>
-		/// Target surface to render WebCam stream
-		/// </summary>
-		public GameObject Surface;
+        System.Diagnostics.Stopwatch _stopWatch = new System.Diagnostics.Stopwatch();
+        /// <summary>
+        /// Target surface to render WebCam stream
+        /// </summary>
+        public GameObject Surface;
 
 		private Nullable<WebCamDevice> webCamDevice = null;
 		private WebCamTexture webCamTexture = null;
@@ -136,8 +137,11 @@ namespace OpenCvSharp.Demo
 		/// </summary>
 		private void Update ()
 		{
-			if (webCamTexture != null && webCamTexture.didUpdateThisFrame)
-			{
+            _stopWatch.Stop();
+            Debug.Log("UpdateAgain: " + _stopWatch.ElapsedMilliseconds + "ms");
+            _stopWatch.Reset();
+            if (webCamTexture != null && webCamTexture.didUpdateThisFrame)
+			{ 
 				// this must be called continuously
 				ReadTextureConversionParameters();
 
@@ -147,7 +151,12 @@ namespace OpenCvSharp.Demo
 					RenderFrame();
 				}
 			}
-		}
+            else
+            {
+                Debug.Log("fail");
+            }
+            _stopWatch.Start();
+        }
 
 		/// <summary>
 		/// Processes current texture

@@ -5181,6 +5181,8 @@ GameObject:
   - component: {fileID: 409708053}
   - component: {fileID: 409708052}
   - component: {fileID: 409708050}
+  - component: {fileID: 409708051}
+  - component: {fileID: 409708055}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -5198,6 +5200,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: be6f43dd71444244d9c403b4382e0ad7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &409708051
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 409708049}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 49d3eb488a53a53478d2515891c79596, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!81 &409708052
@@ -5266,6 +5280,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &409708055
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 409708049}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f14c5d2294842542b09a189ae6c9c8b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &423054730
 GameObject:
   m_ObjectHideFlags: 0
@@ -5279,6 +5305,7 @@ GameObject:
   - component: {fileID: 423054734}
   - component: {fileID: 423054733}
   - component: {fileID: 423054732}
+  - component: {fileID: 423054736}
   m_Layer: 5
   m_Name: RawImage
   m_TagString: Untagged
@@ -5371,6 +5398,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 423054730}
   m_CullTransparentMesh: 0
+--- !u!114 &423054736
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 423054730}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26c7321c80c6c0744a85ff06e1ee393d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Surface: {fileID: 423054730}
+  _object: {fileID: 0}
+  _handObject: []
 --- !u!1001 &511846456
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5378,11 +5420,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 749093162}
     m_Modifications:
-    - target: {fileID: -927199367670048503, guid: aa27951cb82c7bf44a206d367d72bb9d,
-        type: 3}
-      propertyPath: m_Name
-      value: Rope
-      objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: aa27951cb82c7bf44a206d367d72bb9d,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -5437,6 +5474,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -927199367670048503, guid: aa27951cb82c7bf44a206d367d72bb9d,
+        type: 3}
+      propertyPath: m_Name
+      value: Rope
       objectReference: {fileID: 0}
     - target: {fileID: 7561110372842451503, guid: aa27951cb82c7bf44a206d367d72bb9d,
         type: 3}
@@ -6093,6 +6135,7 @@ GameObject:
   - component: {fileID: 1318659425}
   - component: {fileID: 1318659424}
   - component: {fileID: 1318659423}
+  - component: {fileID: 1318659426}
   m_Layer: 5
   m_Name: RawImage
   m_TagString: Untagged
@@ -6131,8 +6174,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7620b2edad1668438320b530ab453a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Surface: {fileID: 0}
-  _object: {fileID: 0}
+  Surface: {fileID: 1318659421}
+  _object: {fileID: 660259580}
   _handObject: []
 --- !u!114 &1318659424
 MonoBehaviour:
@@ -6167,6 +6210,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1318659421}
   m_CullTransparentMesh: 0
+--- !u!114 &1318659426
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1318659421}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26c7321c80c6c0744a85ff06e1ee393d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Surface: {fileID: 1318659421}
+  _object: {fileID: 660259580}
+  _handObject: []
 --- !u!1 &1412245375 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -927199367670048503, guid: aa27951cb82c7bf44a206d367d72bb9d,
@@ -6504,11 +6562,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 749093162}
     m_Modifications:
-    - target: {fileID: -927199367670048503, guid: 3ef67028eb4147c46867ec5d32233abe,
-        type: 3}
-      propertyPath: m_Name
-      value: Hoop
-      objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: 3ef67028eb4147c46867ec5d32233abe,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -6563,6 +6616,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -927199367670048503, guid: 3ef67028eb4147c46867ec5d32233abe,
+        type: 3}
+      propertyPath: m_Name
+      value: Hoop
       objectReference: {fileID: 0}
     - target: {fileID: -490024848148583593, guid: 3ef67028eb4147c46867ec5d32233abe,
         type: 3}
@@ -6655,16 +6713,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: -927199367670048503, guid: 9c844672aef1ce34d89a58a400327ae9,
-        type: 3}
-      propertyPath: m_Name
-      value: basketball
-      objectReference: {fileID: 0}
-    - target: {fileID: -927199367670048503, guid: 9c844672aef1ce34d89a58a400327ae9,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: -6057140222963153312, guid: 9c844672aef1ce34d89a58a400327ae9,
         type: 3}
       propertyPath: m_Controller
@@ -6724,6 +6772,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -927199367670048503, guid: 9c844672aef1ce34d89a58a400327ae9,
+        type: 3}
+      propertyPath: m_Name
+      value: basketball
+      objectReference: {fileID: 0}
+    - target: {fileID: -927199367670048503, guid: 9c844672aef1ce34d89a58a400327ae9,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9c844672aef1ce34d89a58a400327ae9, type: 3}
