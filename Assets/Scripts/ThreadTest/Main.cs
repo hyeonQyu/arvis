@@ -5,7 +5,7 @@ using System.Threading;
 
 public class Main:MonoBehaviour
 {
-    private Thread t1, t2, t3, t4, t5, t6;
+    private Thread t1, t2, t3, t4, t5;
     private static Queue<Task> q1 = new Queue<Task>();
     private static Queue<Task> q2 = new Queue<Task>();
     private static Queue<Task> q3 = new Queue<Task>();
@@ -14,8 +14,7 @@ public class Main:MonoBehaviour
     private object l2 = new object();
     private object l3 = new object();
     private object l4 = new object();
-    private object l5 = new object();
-    private object l6 = new object();
+    private bool isQuit = false;
 
     private class Task
     {
@@ -57,60 +56,23 @@ public class Main:MonoBehaviour
             t5 = new Thread(new ThreadStart(Run5));
             t5.Start();
         }
-        if(t6 == null)
-        {
-            t6 = new Thread(new ThreadStart(Run6));
-            t6.Start();
-        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        Debug.Log("in----------------------------------------------------------------------");
-        if(q1.Count > 0)
-        {
-            Task task;
-            lock(l1)
-            {
-                task = q1.Dequeue();
-                Debug.Log(task.type + " dequeue " + task.index);
-            }
-        }
-        if(q2.Count > 0)
-        {
-            Task task;
-            lock(l2)
-            {
-                task = q2.Dequeue();
-                Debug.Log(task.type + " dequeue " + task.index);
-            }
-        }
-        if(q3.Count > 0)
-        {
-            Task task;
-            lock(l3)
-            {
-                task = q3.Dequeue();
-                Debug.Log(task.type + " dequeue " + task.index);
-            }
-        }
-        if(q4.Count > 0)
-        {
-            Task task;
-            lock(l4)
-            {
-                task = q4.Dequeue();
-                Debug.Log(task.type + " dequeue " + task.index);
-            }
-        }
-        Debug.Log("out----------------------------------------------------------------------");
+        //Debug.Log("6");
+    }
+
+    void OnApplicationQuit()
+    {
+        isQuit = true;
     }
 
     void Run1()
     {
         int i = 0;
-        while(true)
+        while(!isQuit)
         {
             Task task = new Task(1, i);
             lock(l1)
@@ -118,7 +80,7 @@ public class Main:MonoBehaviour
                 q1.Enqueue(task);
             }
             i++;
-            Debug.Log("1 enqueue");
+            //Debug.Log("1 enqueue");
         }
     }
 
@@ -126,60 +88,97 @@ public class Main:MonoBehaviour
     void Run2()
     {
         int i = 0;
-        while(true)
+        while(!isQuit)
         {
-            Task task = new Task(2, i);
-            lock(l2)
+            if(q1.Count > 0)
             {
-                q2.Enqueue(task);
-            }
-            i++;
-            while(true)
-                Debug.Log("2 enqueue");
+                Task deqTask;
+                lock(l1)
+                {
+                    deqTask = q1.Dequeue();
+                }
+                //Debug.Log(deqTask.type + " dequeue " + deqTask.index);
+
+                Task task = new Task(2, i);
+                lock(l2)
+                {
+                    q2.Enqueue(task);
+                }
+                //Debug.Log("2 enqueue");
+                i++;
+            }        
         }
     }
 
     void Run3()
     {
         int i = 0;
-        while(true)
+        while(!isQuit)
         {
-            Task task = new Task(3, i);
-            lock(l3)
+            if(q2.Count > 0)
             {
-                q3.Enqueue(task);
-            }
-            i++;
-            while(true)
-                Debug.Log("3 enqueue");
+                Task deqTask;
+                lock(l2)
+                {
+                    deqTask = q2.Dequeue();
+                }
+                //Debug.Log(deqTask.type + " dequeue " + deqTask.index);
+
+                Task task = new Task(3, i);
+                lock(l3)
+                {
+                    q3.Enqueue(task);
+                }
+                //Debug.Log("3 enqueue");
+                i++;
+            }       
         }
     }
 
     void Run4()
     {
         int i = 0;
-        while(true)
+        while(!isQuit)
         {
-            Task task = new Task(4, i);
-            lock(l4)
+            if(q3.Count > 0)
             {
-                q4.Enqueue(task);
-            }
-            i++;
-            while(true)
-                Debug.Log("4 enqueue");
+                Task deqTask;
+                lock(l3)
+                {
+                    deqTask = q3.Dequeue();
+                }
+                //Debug.Log(deqTask.type + " dequeue " + deqTask.index);
+
+                Task task = new Task(4, i);
+                lock(l4)
+                {
+                    q4.Enqueue(task);
+                }
+                //Debug.Log("4 enqueue");
+                i++;
+            }   
         }
     }
 
     void Run5()
     {
-        while(true)
-            Debug.Log("5");
-    }
+        while(!isQuit)
+        {
+            if(q4.Count > 0)
+            {
+                Task deqTask;
+                lock(l4)
+                {
+                    deqTask = q4.Dequeue();
+                }
+                //Debug.Log(deqTask.type + " dequeue " + deqTask.index);
+                Debug.Log("6");
 
-    void Run6()
-    {
-        while(true)
-            Debug.Log("6");
+                //if(deqTask.index % 2 == 0)
+                //    Debug.Log("5");
+                //else
+                //    Debug.Log("6");
+            }
+        }
     }
 }
