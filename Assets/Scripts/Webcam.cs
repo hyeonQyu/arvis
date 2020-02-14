@@ -15,19 +15,19 @@ public class Webcam:WebCamera
     HandDetector _handDetector;
     HandManager _handManager;
 
-    // 움직일(터치할) 오브젝트
-    [SerializeField, Header("Object to Move")]
-    private GameObject _object;
-    // 가상 손의 손가락
-    [SerializeField, Header("Finger & Center")]
-    private GameObject[] _handObject;
+    //// 움직일(터치할) 오브젝트
+    //[SerializeField, Header("Object to Move")]
+    //private GameObject _object;
+    //// 가상 손의 손가락
+    //[SerializeField, Header("Finger & Center")]
+    //private GameObject[] _handObject;
 
     protected override void Awake()
     {
         _skinDetector = new SkinDetector();
         _faceDetector = new FaceDetector();
         _handDetector = new HandDetector();
-        _handManager = new HandManager(_object, _handObject, this.Surface);
+        //_handManager = new HandManager(_object, _handObject, this.Surface);
 
         _imgOrigin = new Mat();
 

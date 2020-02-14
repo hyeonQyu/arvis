@@ -171,6 +171,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26c7321c80c6c0744a85ff06e1ee393d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _object: {fileID: 1511623268}
+  _handObject:
+  - {fileID: 1837767544}
+  - {fileID: 937025161}
+  - {fileID: 392402688}
+  - {fileID: 1935450448}
+  - {fileID: 1843073654}
+  - {fileID: 1445468423}
   Surface: {fileID: 34377562}
   _object: {fileID: 1511623268}
   _handObject:
@@ -5305,7 +5313,6 @@ GameObject:
   - component: {fileID: 423054734}
   - component: {fileID: 423054733}
   - component: {fileID: 423054732}
-  - component: {fileID: 423054736}
   m_Layer: 5
   m_Name: RawImage
   m_TagString: Untagged
@@ -5341,10 +5348,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 423054730}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a7620b2edad1668438320b530ab453a2, type: 3}
+  m_Script: {fileID: 11500000, guid: 3a8067c792995f246a295505917f31bb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Surface: {fileID: 423054730}
   _object: {fileID: 660259580}
   _handObject:
   - {fileID: 1837767544}
@@ -5353,6 +5359,7 @@ MonoBehaviour:
   - {fileID: 1935450448}
   - {fileID: 1843073654}
   - {fileID: 1445468423}
+  Surface: {fileID: 0}
 --- !u!114 &423054733
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5398,21 +5405,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 423054730}
   m_CullTransparentMesh: 0
---- !u!114 &423054736
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 423054730}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 26c7321c80c6c0744a85ff06e1ee393d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Surface: {fileID: 423054730}
-  _object: {fileID: 0}
-  _handObject: []
 --- !u!1001 &511846456
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6174,6 +6166,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7620b2edad1668438320b530ab453a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _object: {fileID: 660259580}
+  _handObject: []
   Surface: {fileID: 1318659421}
   _object: {fileID: 660259580}
   _handObject: []
@@ -6222,6 +6216,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26c7321c80c6c0744a85ff06e1ee393d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _object: {fileID: 660259580}
+  _handObject: []
   Surface: {fileID: 1318659421}
   _object: {fileID: 660259580}
   _handObject: []

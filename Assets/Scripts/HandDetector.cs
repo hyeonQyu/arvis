@@ -24,6 +24,10 @@ public class HandDetector
     private List<Point> _mainPoint;
     public List<Point> MainPoint
     {
+        set
+        {
+            _mainPoint = new List<Point>(value);
+        }
         get
         {
             return _mainPoint;
@@ -34,6 +38,11 @@ public class HandDetector
     private Point _center;
     public Point Center
     {
+        set
+        {
+            _center.X = value.X;
+            _center.Y = value.Y;
+        }
         get
         {
             return _center;
