@@ -5,115 +5,51 @@ using UnityEngine.UI;
 
 public class WebCam : MonoBehaviour
 {
-    /* 웹캠 디바이스에 관련된 구성요소 */
-    private const string Tag = "ARVIS) ";
-
+    private WebCamTexture _cam;
+    private RawImage _display;
+    private Texture2D _screen;
     [SerializeField]
-    private Camera _camera;
-    [SerializeField]
-    private GameObject _screen;
-    [SerializeField]
-    private Text _text;
+    private Canvas _canvas;
 
-    WebCamTexture _webcamTexture = null;
-    ScreenOrientation _screenOrientation = ScreenOrientation.Portrait;
-    CameraClearFlags _cameraClearFlags;
+    private int _frame = 0;
 
-    private void Awake()
+    private void Start()
     {
-        foreach(Camera c in Camera.allCameras)
-        {
-            if(c != _camera)
-                c.cullingMask = ~(1 << _screen.layer);
-        }
+        _display = GetComponent<RawImage>();
 
-        _camera.gameObject.SetActive(false);
-        _screen.SetActive(false);
-        _camera.farClipPlane = _camera.nearClipPlane + 1f;
-        _screen.transform.localPosition = new Vector3(0, 0, _camera.farClipPlane * .5f);
-       
-        WebCamDevice[] devices = WebCamTexture.devices;
-        if(devices.Length > 0)
-        {
-            _webcamTexture = new WebCamTexture(Screen.width, Screen.height);
-            _screen.GetComponent<Renderer>().material.mainTexture = _webcamTexture;
-        }
+        // 안드로이드 폰에서 실행시키기 위한 회전
+        _canvas.transform.rotation = Quaternion.Euler(0, 0, 90);
 
-        _screenOrientation = Screen.orientation;
-        SetOrientation(_screenOrientation);
-        StartCoroutine(Orientation());
-        Show();
+        _cam = new WebCamTexture(Screen.width, Screen.height, 60);
+        _display.texture = _cam;
+        _cam.Play();
     }
-
-    private void SetOrientation(ScreenOrientation screenOrientation)
-    {
-        float h = Mathf.Tan(_camera.fieldOfView * Mathf.Deg2Rad * .5f) * _screen.transform.localPosition.z * .2f;
-
-        if(_camera.orthographic)
-            h = Screen.height / _camera.pixelHeight;
-        
-        if(ScreenOrientation.Landscape == screenOrientation)
-        {
-            Debug.Log(Tag + "1");
-            _screen.transform.localRotation = Quaternion.Euler(90f, 180f, 0f);
-            _screen.transform.localScale = new Vector3(_camera.aspect * h, 1f, h);
-        }
-        else if(ScreenOrientation.LandscapeLeft == screenOrientation)
-        {
-            Debug.Log(Tag + "2");
-            _screen.transform.localRotation = Quaternion.Euler(90f, 180f, 0f);
-            _screen.transform.localScale = new Vector3(_camera.aspect * h, 1f, h);
-        }
-        else if(ScreenOrientation.LandscapeRight == screenOrientation)
-        {
-            Debug.Log(Tag + "3");
-            _screen.transform.localRotation = Quaternion.Euler(-90f, 0f, 0f);
-            _screen.transform.localScale = new Vector3(_camera.aspect * h, 1f, h);
-        }
-        else if(ScreenOrientation.Portrait == screenOrientation)
-        {
-            Debug.Log(Tag + "4");
-            _screen.transform.localRotation = Quaternion.Euler(180f, -90f, 90f);
-            _screen.transform.localScale = new Vector3(h, 1f, _camera.aspect * h);
-        }
-        else if(ScreenOrientation.PortraitUpsideDown == screenOrientation)
-        {
-            Debug.Log(Tag + "5");
-            _screen.transform.localRotation = Quaternion.Euler(0f, 90f, -90f);
-            _screen.transform.localScale = new Vector3(h, 1f, _camera.aspect * h);
-        }
-    }
-
-    IEnumerator Orientation()
-    {
-        while(true)
-        {
-            if(_screenOrientation != Screen.orientation)
-            {
-                _screenOrientation = Screen.orientation;
-                SetOrientation(_screenOrientation);
-            }
-            yield return new WaitForSeconds(.5f);
-        }
-    }
-
-    private void Show()
-    {
-        if(_webcamTexture == null)
-            return;
-        //if(Camera.main != _camera)
-        //{
-        //    _cameraClearFlags = Camera.main.clearFlags;
-        //    Camera.main.clearFlags = CameraClearFlags.Depth;
-        //}
-        _camera.gameObject.SetActive(true);
-        _screen.SetActive(true);
-        _webcamTexture.Play();
-        _text.text = _webcamTexture.width.ToString() + " " + _webcamTexture.height.ToString();
-    }
-
+    
     private void Update()
     {
-        //_screen.GetComponent<Renderer>().material.mainTexture = HandTracker.Process(_webcamTexture);
+        //_frame++;
+
+        //if(_frame % 30 != 0)
+        //    return;
+
+        //_screen = new Texture2D(_cam.width, _cam.height);
+        //_screen.SetPixels(_cam.GetPixels());
+        //_screen.Apply();
+        //_screen = ScaleTexture()
+    }
+
+    private Texture ScaleTexture(Texture2D source, int targetWidth, int targetHeight)
+    {
+        Texture2D result = new Texture2D(targetWidth, targetHeight, source.format, true);
+        Color[] rpixels = result.GetPixels(0);
+        float incX = (1.0f / targetWidth);
+        float incY = (1.0f / targetHeight);
+        for(int px = 0; px < rpixels.Length; px++)
+        {
+            rpixels[px] = source.GetPixelBilinear(incX * ((float)px % targetWidth), incY * ((float)Mathf.Floor(px / targetWidth)));
+        }
+        result.SetPixels(rpixels, 0);
+        result.Apply();
+        return result;
     }
 }

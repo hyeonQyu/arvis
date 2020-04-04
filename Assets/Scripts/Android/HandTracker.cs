@@ -4,20 +4,20 @@ using UnityEngine;
 using OpenCvSharp;
 using OpenCvSharp.Demo;
 
-public static class HandTracker
+public class HandTracker : MonoBehaviour
 {
     // 손 인식에 사용될 프레임 이미지
-    private static Mat _imgFrame;
-    private static Mat _imgOrigin;
-    private static Mat _imgMask;
-    private static Mat _imgHand;
+    private Mat _imgFrame;
+    private Mat _imgOrigin;
+    private Mat _imgMask;
+    private Mat _imgHand;
 
     //SkinDetector _skinDetector;
     //FaceDetector _faceDetector;
     //HandDetector _handDetector;
     //HandManager _handManager;
 
-    public static Texture2D Process(WebCamTexture input)
+    public Texture2D Process(WebCamTexture input)
     {
         _imgFrame = OpenCvSharp.Unity.TextureToMat(input);
         return OpenCvSharp.Unity.MatToTexture(_imgFrame);
