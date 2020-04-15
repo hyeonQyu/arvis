@@ -8,6 +8,7 @@ using UnityEngine.Video;
 public class FT_Webcam : MonoBehaviour
 {
     // 손 인식에 사용될 프레임 이미지
+    private Mat _imgInput;
     private Mat _imgFrame;
     private Mat _imgOrigin;
     private Mat _imgMask;
@@ -41,7 +42,11 @@ public class FT_Webcam : MonoBehaviour
 
         _imgOrigin = new Mat();
 
-        _frameSource = Cv2.CreateFrameSource_Video("Assets/Resources/test2.mp4");
+        // 영상으로부터 이미지를 입력 받을 때
+        //_frameSource = Cv2.CreateFrameSource_Video("Assets/Resources/test2.mp4");
+
+        // 카메라로부터 이미지를 입력 받을 때
+        _frameSource = Cv2.CreateFrameSource_Camera(0);
 
     }
 
@@ -52,12 +57,31 @@ public class FT_Webcam : MonoBehaviour
 
     public void HandDetect()
     {
-
+        _imgInput = new Mat();
         _imgFrame = new Mat();
-        _frameSource.NextFrame(_imgFrame);
+
+        _frameSource.NextFrame(_imgInput);
+
         _handDetector.IsCorrectDetection = true;
 
+        // 스탑워치 시작
         _stopWatch.Start();
+
+
+                     //************************* _imgInput 해상도를 변경하여 _imgFrame 생성
+        Size size = new Size(720, 480);
+        Cv2.Resize(_imgInput, _imgFrame, size);
+
+        // or
+
+                    // 기존해상도 사용  **************************
+        //_imgFrame = _imgInput;
+                    // ***********************
+
+
+        UnityEngine.Debug.Log("Width = "+ _imgFrame.Width+ "Height = " + _imgFrame.Height);
+
+
         // input 영상이 imgFrame
         _imgOrigin = _imgFrame.Clone();
 
@@ -84,6 +108,7 @@ public class FT_Webcam : MonoBehaviour
         // 스탑워치를 중지하고 소요시간을 리스트에 추가
         _stopWatch.Stop();
         _taskTimeList.Add(_stopWatch.ElapsedMilliseconds.ToString());
+        _stopWatch.Reset();
 
         // 5의 배수로 리스트에 찰때 마다 디버그로 출력
         if (_taskTimeList.Count % 5 == 0)
@@ -99,6 +124,8 @@ public class FT_Webcam : MonoBehaviour
 
         _handDetector.MainPoint.Clear();
 
+        //Cv2.ImShow("image", _imgFrame);
         return;
     }
+
 }
