@@ -104,6 +104,8 @@ public class SkinDetector
         Cv2.Dilate(imgMask1, imgMask1, Cv2.GetStructuringElement(MorphShapes.Ellipse, new Size(5, 5)));
         Cv2.Erode(imgMask1, imgMask1, Cv2.GetStructuringElement(MorphShapes.Ellipse, new Size(5, 5)));
 
+        imgMask2.Release();
+
         return imgMask1;
     }
 }
