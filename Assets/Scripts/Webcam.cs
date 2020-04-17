@@ -41,6 +41,7 @@ public class Webcam:WebCamera
 
         // input 영상이 imgFrame
         _imgFrame = OpenCvSharp.Unity.TextureToMat(input, TextureParameters);
+        //Cv2.Resize(_imgFrame, _imgFrame, new Size(424, 240));
         _imgOrigin = _imgFrame.Clone();
 
         // 얼굴 제거
