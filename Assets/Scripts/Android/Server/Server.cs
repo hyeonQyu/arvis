@@ -20,8 +20,6 @@ public class Server
 
     public static void StartServer()
     {
-        Listen();
-
         _thread = new Thread(new ThreadStart(RunServer));
         _isThreadRun = true;
         _thread.Start();
@@ -39,11 +37,13 @@ public class Server
 
     private static void RunServer()
     {
+        Listen();
+
+        Debug.Log("연결 대기중");
+        _socket = _listener.Accept();
+
         while(_isThreadRun)
         {
-            Debug.Log("연결 대기중");
-            _socket = _listener.Accept();
-
             // 수신
             while(true)
             {
@@ -57,14 +57,14 @@ public class Server
             // 송신
             byte[] msg = new byte[1];
             msg[0] = 4;
-            _socket.Send(msg);
-            //_socket.Shutdown(SocketShutdown.Both);
-            //_socket.Close();
+            _socket.Send(msg);          
         }
     }
 
     public static void CloseServer()
     {
+        _socket.Shutdown(SocketShutdown.Both);
+        _socket.Close();
         _isThreadRun = false;
     }
 }

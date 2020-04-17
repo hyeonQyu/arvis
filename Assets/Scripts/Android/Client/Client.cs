@@ -10,6 +10,11 @@ public class Client
     private static IPAddress _ipAddress;
     private static IPEndPoint _remoteEP;
     private static Socket _socket;
+    //public static Socket Socket
+    //{
+    //    get { return _socket; }
+    //    set { _socket = value }
+    //}
 
     public static void Setup()
     {
@@ -35,5 +40,8 @@ public class Client
         // 안드로이드 폰에서 디버깅 해보기
         //if(bytes[0] == 4)
         Debug.Log(bytes[0]);
+
+        //_socket.Shutdown(SocketShutdown.Both);
+        //_socket.Close();
     }
 }
