@@ -23,10 +23,17 @@ public class WebCam : MonoBehaviour
         _cam = new WebCamTexture(Screen.width, Screen.height, 60);
         _display.texture = _cam;
         _cam.Play();
+
+        Client.Setup();
     }
     
     private void Update()
     {
+        if(_frame % 5 == 0)
+            Client.Send();
+        else if(_frame % 5 == 3)
+            Client.Receive();
+        _frame++;
         //_frame++;
 
         //if(_frame % 30 != 0)

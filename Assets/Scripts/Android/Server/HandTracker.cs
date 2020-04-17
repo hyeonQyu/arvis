@@ -17,6 +17,16 @@ public class HandTracker : MonoBehaviour
     //HandDetector _handDetector;
     //HandManager _handManager;
 
+    private void Start()
+    {
+        Server.StartServer();
+    }
+
+    private void Update()
+    {
+
+    }
+
     public Texture2D Process(WebCamTexture input)
     {
         _imgFrame = OpenCvSharp.Unity.TextureToMat(input);
