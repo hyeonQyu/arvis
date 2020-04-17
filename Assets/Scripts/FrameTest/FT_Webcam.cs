@@ -15,6 +15,8 @@ public class FT_Webcam : MonoBehaviour
     private Mat _imgMask;
     private Mat _imgHand;
 
+    private WebCamTexture _cam;
+
     [SerializeField]
     private RawImage _rawImage;
 
@@ -23,7 +25,7 @@ public class FT_Webcam : MonoBehaviour
 
     private Stopwatch _stopWatch;
 
-    // 수행시간을 저장할 리스ㅌ
+    // 수행시간을 저장할 리스트
     private List<string> _taskTimeList;
     private List<int> _failFrameCount;
 
@@ -44,12 +46,18 @@ public class FT_Webcam : MonoBehaviour
         _failFrameCount = new List<int>();
 
         _imgOrigin = new Mat();
+        _imgInput = new Mat();
+        _imgFrame = new Mat();
+
+        _cam = new WebCamTexture(Screen.width, Screen.height, 60);
+        _cam.Play();
 
         // 영상으로부터 이미지를 입력 받을 때
         //_frameSource = Cv2.CreateFrameSource_Video(Application.dataPath +"/Resources/test2.mp4");
 
+
         // 카메라로부터 이미지를 입력 받을 때
-        _frameSource = Cv2.CreateFrameSource_Camera(0); 
+        //_frameSource = Cv2.CreateFrameSource_Camera(1);
 
     }
 
@@ -60,12 +68,12 @@ public class FT_Webcam : MonoBehaviour
 
     public void HandDetect()
     {
-        _imgInput = new Mat();
-        _imgFrame = new Mat();
 
         Texture2D texture2D;
 
-        _frameSource.NextFrame(_imgInput);
+        //_frameSource.NextFrame(_imgInput);
+
+        _imgInput = OpenCvSharp.Unity.TextureToMat(_cam);
 
         _handDetector.IsCorrectDetection = true;
 
@@ -84,7 +92,7 @@ public class FT_Webcam : MonoBehaviour
                     // ***********************
 
 
-        //UnityEngine.Debug.Log("Width = "+ _imgFrame.Width+ "Height = " + _imgFrame.Height);
+        UnityEngine.Debug.Log("Width = "+ _imgFrame.Width+ "Height = " + _imgFrame.Height);
 
 
         // input 영상이 imgFrame
@@ -104,14 +112,10 @@ public class FT_Webcam : MonoBehaviour
         {
             _stopWatch.Stop();
             _failFrameCount.Add(0);
-            texture2D = OpenCvSharp.Unity.MatToTexture(_imgFrame);
+            texture2D = OpenCvSharp.Unity.MatToTexture(_imgHand);
 
             _rawImage.GetComponent<RawImage>().texture = texture2D;
             //UnityEngine.Debug.Log("Failed Frame Counts = " + _failFrameCount.Count);
-            _imgFrame.Release();
-            _imgInput.Release();
-            _imgMask.Release();
-            _imgHand.Release();
             return;
         }
 
@@ -136,16 +140,13 @@ public class FT_Webcam : MonoBehaviour
         }
 
         _handDetector.MainPoint.Clear();
+       
 
-        texture2D =  OpenCvSharp.Unity.MatToTexture(_imgFrame);
+        texture2D =  OpenCvSharp.Unity.MatToTexture(_imgHand);
 
         _rawImage.GetComponent<RawImage>().texture = texture2D;
 
         //Cv2.ImShow("image", _imgFrame);
-        _imgFrame.Release();
-        _imgInput.Release();
-        _imgMask.Release();
-        _imgHand.Release();
         return;
     }
 
