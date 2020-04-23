@@ -3,18 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 
 public class Client
 {
     private static string _ip = "127.0.0.1";
+    //private static string _ip = "192.168.0.28";
     private static IPAddress _ipAddress;
     private static IPEndPoint _remoteEP;
     private static Socket _socket;
-    //public static Socket Socket
-    //{
-    //    get { return _socket; }
-    //    set { _socket = value }
-    //}
+
+    private static Thread _thread;
+    private static bool _isThreadRun;
 
     public static void Setup()
     {
@@ -23,25 +23,37 @@ public class Client
 
         _socket = new Socket(_ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
         _socket.Connect(_remoteEP);
-        Debug.Log("Socket connect " + _socket.RemoteEndPoint.ToString());
+        Debug.Log("서버에 접속");
+        //Debug.Log("Socket connect " + _socket.RemoteEndPoint.ToString());
+
+        _thread = new Thread(new ThreadStart(Run));
+        _isThreadRun = true;
+        _thread.Start();
     }
 
-    public static void Send()
+    public static void Send(byte[] data)
     {
-        byte[] bytes = new byte[100];
-        bytes[0] = 2;
-        _socket.Send(bytes);
+        _socket.Send(data);
     }
 
     public static void Receive()
     {
         byte[] bytes = new byte[100];
         _socket.Receive(bytes, 100, SocketFlags.None);
-        // 안드로이드 폰에서 디버깅 해보기
-        //if(bytes[0] == 4)
         Debug.Log(bytes[0]);
+    }
 
-        //_socket.Shutdown(SocketShutdown.Both);
+    private static void Run()
+    {
+        while(_isThreadRun)
+        {
+            
+        }
+    }
+
+    public static void Close()
+    {
+        _isThreadRun = false;
         //_socket.Close();
     }
 }
