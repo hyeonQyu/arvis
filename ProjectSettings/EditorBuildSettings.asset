@@ -8,10 +8,10 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/WindowScene.unity
     guid: 0b39684a09a155d498acdec74117f41a
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/AndroidScene.unity
     guid: b51f936ed9ef78642b1f2b38590c8a58
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/ServerScene.unity
     guid: 1331697abca650c4d9919c103661c990
   - enabled: 0
