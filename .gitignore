@@ -52,6 +52,10 @@ ExportedObj/
 # Unity3D generated file on crash reports
 sysinfo.txt
 
+
+# Deep Learning Weights
+*.weights
+
 # Builds
 *.apk
 *.unitypackage
