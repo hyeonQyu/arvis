@@ -35,6 +35,8 @@ public class WebCam : MonoBehaviour
     HandDetector _handDetector;
     HandManager _handManager;
 
+    private int _frame = 0;
+
     private void Start()
     {
         Debug.Log(Math.Atan2(23, 10) * 180 / Math.PI);
@@ -50,18 +52,35 @@ public class WebCam : MonoBehaviour
 #endif
         // 원본 화면 = _cam
         _cam = new WebCamTexture(Screen.width, Screen.height, 60);
-        //_display.texture = _cam;
+        _display.texture = _cam;
         _cam.Play();
 
         _skinDetector = new SkinDetector();
         _handDetector = new HandDetector();
         _handManager = new HandManager(_object, _handObject, _canvas);
 
-        //Client.Setup();
+        Client.Setup();
     }
 
     private void Update()
     {
+        if(_frame <= 15)
+        {
+            _frame++;
+            return;
+        }
+
+        // YOLO 수행
+        if(!_handDetector.IsInitialized)
+        {
+            Client.Connect();
+
+            Yolo();
+            _handDetector.IsInitialized = true;
+
+            Client.Close();
+        }
+
         _imgFrame = OpenCvSharp.Unity.TextureToMat(_cam);
 
         Texture2D texture = new Texture2D(_width, _height);
@@ -94,12 +113,31 @@ public class WebCam : MonoBehaviour
         _handDetector.MainPoint.Clear();
         _handManager.Cvt3List.Clear();
 
-        texture = OpenCvSharp.Unity.MatToTexture(_imgHand, texture);
-        _display.texture = texture;
+        //texture = OpenCvSharp.Unity.MatToTexture(_imgHand, texture);
+        //_display.texture = texture;
     }
 
-    //private void OnApplicationQuit()
-    //{
-    //    Client.Close();
-    //}
+    private void Yolo()
+    {
+        Texture2D img = new Texture2D(_cam.width, _cam.height);
+        img.SetPixels32(_cam.GetPixels32());
+
+        byte[] jpg = img.EncodeToJPG();
+        Debug.Log("jpg " + jpg.Length);
+
+        // jpg 전송
+        Client.Send(BitConverter.GetBytes(jpg.Length));
+        Client.Send(jpg);
+
+        Debug.Log("JPG");
+        for(int i = 0; i < 10; i++)
+        {
+            Debug.Log(jpg[i]);
+        }
+    }
+
+    private void OnApplicationQuit()
+    {
+        Client.Close();
+    }
 }
