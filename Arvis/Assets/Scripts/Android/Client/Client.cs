@@ -4,11 +4,12 @@ using UnityEngine;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System;
 
 public class Client
 {
-    private static string _ip = "127.0.0.1";
-    //private static string _ip = "192.168.0.28";
+    //private static string _ip = "127.0.0.1";
+    private static string _ip = "192.168.0.18";
     private static IPAddress _ipAddress;
     private static IPEndPoint _remoteEP;
     private static Socket _socket;
@@ -16,24 +17,54 @@ public class Client
     private static Thread _thread;
     private static bool _isThreadRun;
 
+    public const int MaxDataLength = 1024;
+
     public static void Setup()
     {
         _ipAddress = IPAddress.Parse(_ip);
-        _remoteEP = new IPEndPoint(_ipAddress, 8080);
+        _remoteEP = new IPEndPoint(_ipAddress, 4000);
 
+        //_thread = new Thread(new ThreadStart(Run));
+        //_isThreadRun = true;
+        //_thread.Start();
+    }
+
+    public static void Connect()
+    {
         _socket = new Socket(_ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
         _socket.Connect(_remoteEP);
         Debug.Log("서버에 접속");
-        //Debug.Log("Socket connect " + _socket.RemoteEndPoint.ToString());
-
-        _thread = new Thread(new ThreadStart(Run));
-        _isThreadRun = true;
-        _thread.Start();
     }
 
     public static void Send(byte[] data)
     {
-        _socket.Send(data);
+        // jpg 크기 전송
+        if(data.Length == 4)
+        {
+            _socket.Send(data);
+            return;
+        }
+
+        // jpg 전송
+        int index = 0;
+        int restDataLength = data.Length;
+
+        // 여러번에 걸쳐 jpg 1장 전송, 한 번 전송 최대 크기: 1024
+        for(int i = 0; i < data.Length / Client.MaxDataLength + 1; i++)
+        {
+            int sendingLength = Math.Min(Client.MaxDataLength, restDataLength);
+            //// jpg 크기 정보(4byte)와 겹치지 않도록 하기 위함
+            //if(sendingLength == 4)
+            //    sendingLength++;
+
+            byte[] trimData = new byte[sendingLength];
+            Array.Copy(data, index, trimData, 0, sendingLength);
+
+            _socket.Send(trimData);
+
+            index += MaxDataLength;
+            restDataLength -= sendingLength;
+        }
     }
 
     public static void Receive()
@@ -54,6 +85,6 @@ public class Client
     public static void Close()
     {
         _isThreadRun = false;
-        //_socket.Close();
+        _socket.Close();
     }
 }

@@ -74,6 +74,20 @@ public class HandDetector
         }
     }
 
+    // YOLO를 통해 손을 인식해야하는지 확인
+    private bool _isInitialized;
+    public bool IsInitialized
+    {
+        get
+        {
+            return _isInitialized;
+        }
+        set
+        {
+            _isInitialized = value;
+        }
+    }
+
     public HandDetector()
     {
         _mainPoint = new List<Point>();

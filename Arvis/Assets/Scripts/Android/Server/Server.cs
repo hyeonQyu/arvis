@@ -53,42 +53,64 @@ public class Server
         {
             int bytesRec = 0;
 
-            // 수신
+            // 수신 대기
             while(true)
             {
                 bytesRec = _socket.Receive(_data);
+                Debug.Log("1 " + bytesRec);
                 
-                // 클라이언트로부터 데이터를 수신했다면
-                if(bytesRec > 0)
+                // jpg 크기 수신
+                if(bytesRec == 4)
+                {
+                    int jpgSize = BitConverter.ToInt32(_data, 0);
+                    Debug.Log("2 " + jpgSize);
+                    int receivedLength = 0;
+
+                    byte[] data = new byte[jpgSize];
+
+                    // jpg 데이터 나누어 송신
+                    while(receivedLength < jpgSize)
+                    {
+                        Debug.Log("3");
+                        byte[] tmp = new byte[Client.MaxDataLength];
+                        int rec = _socket.Receive(tmp);
+                        Array.Copy(tmp, 0, data, receivedLength, rec);
+                    }
+
+                    // 받은 jpg를 큐에 삽입
+                    ImgQueue.Enqueue(data);
                     break;
+                }
             }
             Debug.Log("데이터 배열 크기: " + bytesRec);
 
-            if(bytesRec < 10)
-            {
-                //byte[] width = new byte[4];
-                //byte[] height = new byte[4];
+            //////////// jpg 데이터 크기
+            //////////if(bytesRec == 4)
+            //////////{
+                
+            //////////    //byte[] width = new byte[4];
+            //////////    //byte[] height = new byte[4];
 
-                //for(int i = 0; i < 4; i++)
-                //    width[i] = _data[i];
-                //for(int i = 0; i < 4; i++)
-                //    height[i] = _data[i + 4];
+            //////////    //for(int i = 0; i < 4; i++)
+            //////////    //    width[i] = _data[i];
+            //////////    //for(int i = 0; i < 4; i++)
+            //////////    //    height[i] = _data[i + 4];
 
-                HandTracker.Width = BitConverter.ToInt32(_data, 0);
-                HandTracker.Height = BitConverter.ToInt32(_data, 4);
-                continue;
-            }
+            //////////    HandTracker.Width = BitConverter.ToInt32(_data, 0);
+            //////////    HandTracker.Height = BitConverter.ToInt32(_data, 4);
+            //////////    continue;
+            //////////}
 
-            // 받은 데이터를 큐에 삽입
-            ImgQueue.Enqueue(_data);
+            //////////// 받은 데이터를 큐에 삽입
+            //////////ImgQueue.Enqueue(_data);
 
-            // 송신할 데이터가 있다면 송신
-            if(PointQueue.Count > 0)
-            {
-                byte[] msg = new byte[1];
-                msg[0] = 4;
-                _socket.Send(msg);
-            }           
+            //// 송신할 데이터가 있다면 송신
+            //if(PointQueue.Count > 0)
+            //{
+            //    byte[] msg = new byte[1];
+            //    msg[0] = 4;
+            //    _socket.Send(msg);
+            //}           
         }
     }
 
