@@ -10,7 +10,7 @@ public class HandManager
     // 가상 손의 손가락
     private GameObject[] _handObject;
 
-    private GameObject _screen;
+    private Canvas _screen;
 
     private List<Vector3> _cvt3List;
     public List<Vector3> Cvt3List
@@ -21,7 +21,7 @@ public class HandManager
         }
     }
 
-    public HandManager(GameObject movingObject, GameObject[] handObject, GameObject screen)
+    public HandManager(GameObject movingObject, GameObject[] handObject, Canvas screen)
     {
         _cvt3List = new List<Vector3>();
         _object = movingObject;
@@ -34,7 +34,7 @@ public class HandManager
         // 가상 손을 움직임
         for(int i = 0; i < _handObject.Length; i++)
         {
-            _handObject[i].GetComponent<HandSkeleton>().MoveTransform(_cvt3List[i]);
+            _handObject[i].transform.position = _cvt3List[i] * 24;
         }
     }
 

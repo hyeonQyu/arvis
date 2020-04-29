@@ -12,6 +12,13 @@ public class WebCam : MonoBehaviour
     [SerializeField]
     private Canvas _canvas;
 
+    // 움직일(터치할) 오브젝트
+    [SerializeField, Header("Object to Move")]
+    private GameObject _object;
+    // 가상 손의 손가락
+    [SerializeField, Header("Finger & Center")]
+    private GameObject[] _handObject;
+
     // 서버로 전송할 데이터
     private byte[] _data;
 
@@ -26,15 +33,20 @@ public class WebCam : MonoBehaviour
 
     SkinDetector _skinDetector;
     HandDetector _handDetector;
+    HandManager _handManager;
 
     private void Start()
     {
+        Debug.Log(Math.Atan2(23, 10) * 180 / Math.PI);
+        Debug.Log(Math.Atan2(23, -10) * 180 / Math.PI);
+        Debug.Log(Math.Atan2(-23, -10) * 180 / Math.PI);
+        Debug.Log(Math.Atan2(-23, 10) * 180 / Math.PI);
         _display = GetComponent<RawImage>();
 
 #if UNITY_EDITOR
         _canvas.transform.rotation = Quaternion.Euler(0, 0, 0);
 #elif UNITY_ANDROID
-        _canvas.transform.rotation = Quaternion.Euler(0, 0, 90);
+        _canvas.transform.rotation = Quaternion.Euler(0, 0, 270);
 #endif
         // 원본 화면 = _cam
         _cam = new WebCamTexture(Screen.width, Screen.height, 60);
@@ -43,6 +55,7 @@ public class WebCam : MonoBehaviour
 
         _skinDetector = new SkinDetector();
         _handDetector = new HandDetector();
+        _handManager = new HandManager(_object, _handObject, _canvas);
 
         //Client.Setup();
     }
@@ -72,8 +85,14 @@ public class WebCam : MonoBehaviour
         // 손가락 끝점을 그림
         _handDetector.DrawFingerPointAtImg(_imgHand);
 
-        _handDetector.MainPoint.Clear();
+        // 화면상의 손가락 끝 좌표를 가상세계 좌표로 변환
+        _handManager.InputPoint(_handDetector.FingerPoint, _handDetector.Center);
 
+        // 가상 손을 움직임
+        _handManager.MoveHand();
+
+        _handDetector.MainPoint.Clear();
+        _handManager.Cvt3List.Clear();
 
         texture = OpenCvSharp.Unity.MatToTexture(_imgHand, texture);
         _display.texture = texture;

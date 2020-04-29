@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using OpenCvSharp;
 using OpenCvSharp.Demo;
+using System;
 
 public class Webcam:WebCamera
 {
@@ -13,7 +14,7 @@ public class Webcam:WebCamera
     SkinDetector _skinDetector;
     FaceDetector _faceDetector;
     HandDetector _handDetector;
-    HandManager _handManager;
+    //HandManager _handManager;
 
     // 움직일(터치할) 오브젝트
     [SerializeField, Header("Object to Move")]
@@ -27,12 +28,13 @@ public class Webcam:WebCamera
         _skinDetector = new SkinDetector();
         _faceDetector = new FaceDetector();
         _handDetector = new HandDetector();
-        _handManager = new HandManager(_object, _handObject, this.Surface);
+       // _handManager = new HandManager(_object, _handObject, this.Surface);
 
         _imgOrigin = new Mat();
 
         base.Awake();
         this.forceFrontalCamera = true;
+        Debug.Log(Math.Atan2(23, 10));
     }
 
     protected override bool ProcessTexture(WebCamTexture input, ref Texture2D output)
@@ -64,15 +66,16 @@ public class Webcam:WebCamera
         _handDetector.DrawFingerPointAtImg(_imgHand);
 
         // 화면상의 손가락 끝 좌표를 가상세계 좌표로 변환
-        _handManager.InputPoint(_handDetector.FingerPoint, _handDetector.Center);
+       // _handManager.InputPoint(_handDetector.FingerPoint, _handDetector.Center);
 
         // 가상 손을 움직임
-        _handManager.MoveHand();
+       // _handManager.MoveHand();
 
         _handDetector.MainPoint.Clear();
-        _handManager.Cvt3List.Clear();
+       // _handManager.Cvt3List.Clear();
 
         output = OpenCvSharp.Unity.MatToTexture(_imgHand, output);
+        
         return true;
     }
 }
