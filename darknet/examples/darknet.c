@@ -3,6 +3,10 @@
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <arpa/inet.h>
+#include <string.h>
 
 extern void predict_classifier(char *datacfg, char *cfgfile, char *weightfile, char *filename, int top);
 extern void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filename, float thresh, float hier_thresh, char *outfile, int fullscreen);
@@ -397,19 +401,13 @@ void visualize(char *cfgfile, char *weightfile)
     visualize_network(net);
 }
 
-int main(int argc, char **argv)
+void detect_hand(char* filename)
 {
     //test_resize("data/bad.jpg");
     //test_box();
     //test_convolutional_layer();
-    if(argc < 2){
-        fprintf(stderr, "usage: %s <function>\n", argv[0]);
-        return 0;
-    }
-    gpu_index = find_int_arg(argc, argv, "-i", 0);
-    if(find_arg(argc, argv, "-nogpu")) {
-        gpu_index = -1;
-    }
+    char * cfg_path = "cfg/yolov2.cfg";
+    char * weight_path = "yolo.weights";
 
 #ifndef GPU
     gpu_index = -1;
@@ -419,84 +417,116 @@ int main(int argc, char **argv)
     }
 #endif
 
-    if (0 == strcmp(argv[1], "average")){
-        average(argc, argv);
-    } else if (0 == strcmp(argv[1], "yolo")){
-        run_yolo(argc, argv);
-    } else if (0 == strcmp(argv[1], "super")){
-        run_super(argc, argv);
-    } else if (0 == strcmp(argv[1], "lsd")){
-        run_lsd(argc, argv);
-    } else if (0 == strcmp(argv[1], "detector")){
-        run_detector(argc, argv);
-    } else if (0 == strcmp(argv[1], "detect")){
-        float thresh = find_float_arg(argc, argv, "-thresh", .5);
-        char *filename = (argc > 4) ? argv[4]: 0;
-        char *outfile = find_char_arg(argc, argv, "-out", 0);
-        int fullscreen = find_arg(argc, argv, "-fullscreen");
-        test_detector("cfg/coco.data", argv[2], argv[3], filename, thresh, .5, outfile, fullscreen);
-    } else if (0 == strcmp(argv[1], "cifar")){
-        run_cifar(argc, argv);
-    } else if (0 == strcmp(argv[1], "go")){
-        run_go(argc, argv);
-    } else if (0 == strcmp(argv[1], "rnn")){
-        run_char_rnn(argc, argv);
-    } else if (0 == strcmp(argv[1], "coco")){
-        run_coco(argc, argv);
-    } else if (0 == strcmp(argv[1], "classify")){
-        predict_classifier("cfg/imagenet1k.data", argv[2], argv[3], argv[4], 5);
-    } else if (0 == strcmp(argv[1], "classifier")){
-        run_classifier(argc, argv);
-    } else if (0 == strcmp(argv[1], "regressor")){
-        run_regressor(argc, argv);
-    } else if (0 == strcmp(argv[1], "isegmenter")){
-        run_isegmenter(argc, argv);
-    } else if (0 == strcmp(argv[1], "segmenter")){
-        run_segmenter(argc, argv);
-    } else if (0 == strcmp(argv[1], "art")){
-        run_art(argc, argv);
-    } else if (0 == strcmp(argv[1], "tag")){
-        run_tag(argc, argv);
-    } else if (0 == strcmp(argv[1], "3d")){
-        composite_3d(argv[2], argv[3], argv[4], (argc > 5) ? atof(argv[5]) : 0);
-    } else if (0 == strcmp(argv[1], "test")){
-        test_resize(argv[2]);
-    } else if (0 == strcmp(argv[1], "nightmare")){
-        run_nightmare(argc, argv);
-    } else if (0 == strcmp(argv[1], "rgbgr")){
-        rgbgr_net(argv[2], argv[3], argv[4]);
-    } else if (0 == strcmp(argv[1], "reset")){
-        reset_normalize_net(argv[2], argv[3], argv[4]);
-    } else if (0 == strcmp(argv[1], "denormalize")){
-        denormalize_net(argv[2], argv[3], argv[4]);
-    } else if (0 == strcmp(argv[1], "statistics")){
-        statistics_net(argv[2], argv[3]);
-    } else if (0 == strcmp(argv[1], "normalize")){
-        normalize_net(argv[2], argv[3], argv[4]);
-    } else if (0 == strcmp(argv[1], "rescale")){
-        rescale_net(argv[2], argv[3], argv[4]);
-    } else if (0 == strcmp(argv[1], "ops")){
-        operations(argv[2]);
-    } else if (0 == strcmp(argv[1], "speed")){
-        speed(argv[2], (argc > 3 && argv[3]) ? atoi(argv[3]) : 0);
-    } else if (0 == strcmp(argv[1], "oneoff")){
-        oneoff(argv[2], argv[3], argv[4]);
-    } else if (0 == strcmp(argv[1], "oneoff2")){
-        oneoff2(argv[2], argv[3], argv[4], atoi(argv[5]));
-    } else if (0 == strcmp(argv[1], "print")){
-        print_weights(argv[2], argv[3], atoi(argv[4]));
-    } else if (0 == strcmp(argv[1], "partial")){
-        partial(argv[2], argv[3], argv[4], atoi(argv[5]));
-    } else if (0 == strcmp(argv[1], "average")){
-        average(argc, argv);
-    } else if (0 == strcmp(argv[1], "visualize")){
-        visualize(argv[2], (argc > 3) ? argv[3] : 0);
-    } else if (0 == strcmp(argv[1], "mkimg")){
-        mkimg(argv[2], argv[3], atoi(argv[4]), atoi(argv[5]), atoi(argv[6]), argv[7]);
-    } else if (0 == strcmp(argv[1], "imtest")){
-        test_resize(argv[2]);
-    } else {
-        fprintf(stderr, "Not an option: %s\n", argv[1]);
-    }
-    return 0;
+        //float thresh = find_float_arg(argc, argv, "-thresh", .5);
+        float thresh = 0.5;
+        //char *outfile = find_char_arg(argc, argv, "-out", 0);
+        //int fullscreen = find_arg(argc, argv, "-fullscreen");
+        test_detector("cfg/coco.data", cfg_path, weight_path, filename, thresh, .5, 0, 0);
+
+    return ;
+}
+
+// Adding Socket Network
+int main(int argc, char **argv){
+    int ret;
+
+    FILE* file = NULL;
+
+    int server_sockfd;
+        server_sockfd = socket(AF_INET, SOCK_STREAM, 0);
+        if (server_sockfd == -1) { perror("[S] socket"); return -1; }
+        printf("[S] socket\n");
+
+        /* set server_sockaddr */
+        struct sockaddr_in server_sockaddr;
+        memset(&server_sockaddr, 0, sizeof(struct sockaddr_in));
+        server_sockaddr.sin_family      = AF_INET;
+        server_sockaddr.sin_port        = htons(4000);
+        server_sockaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+
+        /* bind */
+        ret = bind(server_sockfd, (struct sockaddr *)&server_sockaddr, sizeof(struct sockaddr_in));
+        if (ret == -1) { perror("[S] bind"); return -1; }
+        printf("[S] bind\n");
+
+        /* listen */
+        ret = listen(server_sockfd, 5);
+        if (ret == -1) { perror("[S] listen"); return -1; }
+        printf("[S] listen\n");
+
+        /* loop */
+        int client_sockfd;
+        struct sockaddr_in client_sockaddr;
+        int socklen, readlen, writelen;
+        char buf[512];
+        /* for (;;) { */
+            /* accept */
+        memset(&client_sockaddr, 0, sizeof(struct sockaddr_in));
+        socklen = sizeof(struct sockaddr_in);
+        while(1){
+            client_sockfd = accept(server_sockfd, (struct sockaddr *)&client_sockaddr, &socklen);
+            if (client_sockfd == -1)
+            {
+                perror("[S] accept");
+                continue;
+            }
+            printf("[S] accept\n");
+
+            pid_t pid = fork();
+    		if(pid == 0)
+    		{
+                close(server_sockfd);
+                int img_len = 0;
+                int receive_len = recv(client_sockfd, buf, 512,0);
+                memcpy(&img_len, buf, sizeof(int));
+
+                printf("img_len = %d \n", img_len);
+
+                unsigned char * img = (unsigned char *)calloc(1,img_len);
+                int pt = 0;
+
+                while(1)
+                {
+                    if(img_len > 1024){
+                        recv(client_sockfd, &img[pt], 1024, 0);
+                        img_len = img_len - 1024;
+                        pt += 1024;
+                    }
+                    else if(0 < img_len && img_len <= 1024 ){
+                        recv(client_sockfd, img+pt, img_len,0);
+                        pt += img_len;
+                        img_len = img_len - img_len;
+                    }
+                    if(img_len < 1){
+                        printf("pt = %d \n", pt);
+                        break;
+                    }
+                }
+
+                for(int i = 0; i < 10; i++){
+                    printf("hhhhh %c \n", img[i] );
+                }
+
+                file = fopen("image.jpg", "w");
+                if(file == NULL){
+                    perror("Failed File Open");
+                }
+                else{
+                    fwrite(img, 1, pt, file);
+                    fclose(file);
+                    detect_hand("image.jpg");
+                }
+                close(client_sockfd);
+    		}
+
+    		else if(pid < 0)
+    		{
+    			perror("Fork() Failed\n");
+    			close(client_sockfd);
+    		}
+    		else
+    			close(client_sockfd);
+        }
+
+        return 0;
 }
