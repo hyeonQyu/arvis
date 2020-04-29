@@ -2,14 +2,14 @@
 #
 # Get latest from https://github.com/github/gitignore/blob/master/Unity.gitignore
 #
-/Arivs/[Ll]ibrary/
-/Arivs/[Tt]emp/
-/Arivs/[Oo]bj/
-/Arivs/[Bb]uild/
-/Arivs/[Bb]uilds/
-/Arivs/[Ll]ogs/
-/Arivs/[Mm]emoryCaptures/
-/Arivs/Server/
+/Arvis/[Ll]ibrary/
+/Arvis/[Tt]emp/
+/Arvis/[Oo]bj/
+/Arvis/[Bb]uild/
+/Arvis/[Bb]uilds/
+/Arvis/[Ll]ogs/
+/Arvis/[Mm]emoryCaptures/
+/Arvis/Server/
 /Arvis/Client/
 
 # Never ignore Asset meta data
