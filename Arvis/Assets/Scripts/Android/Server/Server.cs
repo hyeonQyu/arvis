@@ -68,14 +68,14 @@ public class Server
 
                     byte[] data = new byte[jpgSize];
 
-                    // jpg 데이터 나누어 송신
-                    while(receivedLength < jpgSize)
-                    {
-                        Debug.Log("3");
-                        byte[] tmp = new byte[Client.MaxDataLength];
-                        int rec = _socket.Receive(tmp);
-                        Array.Copy(tmp, 0, data, receivedLength, rec);
-                    }
+                    //// jpg 데이터 나누어 송신
+                    //while(receivedLength < jpgSize)
+                    //{
+                    //    Debug.Log("3");
+                    //    byte[] tmp = new byte[Client.MaxDataLength];
+                    //    int rec = _socket.Receive(tmp);
+                    //    Array.Copy(tmp, 0, data, receivedLength, rec);
+                    //}
 
                     // 받은 jpg를 큐에 삽입
                     ImgQueue.Enqueue(data);
