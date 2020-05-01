@@ -1,4 +1,5 @@
 #include "darknet.h"
+#include "network.h"
 
 #include <time.h>
 #include <stdlib.h>
@@ -480,32 +481,38 @@ int main(int argc, char **argv){
                 int receive_len = recv(client_sockfd, buf, 512,0);
                 memcpy(&img_len, buf, sizeof(int));
 
-                printf("img_len = %d \n", img_len);
+                printf("int img_len = %d \n", img_len);
 
                 unsigned char * img = (unsigned char *)calloc(1,img_len);
                 int pt = 0;
 
+                int received_length = 0;
+
                 while(1)
                 {
-                    if(img_len > 1024){
-                        recv(client_sockfd, &img[pt], 1024, 0);
-                        img_len = img_len - 1024;
-                        pt += 1024;
+                    if(img_len > IMG_CHUNK_SIZE){
+                        unsigned char * chunk = (unsigned char *)calloc(1, 1024);
+                        received_length = recv(client_sockfd, chunk, 1024, 0);
+                        memcpy(img+pt, chunk, received_length);
+                        pt += received_length;
+                        img_len = img_len - received_length;
+                        free(chunk);
                     }
-                    else if(0 < img_len && img_len <= 1024 ){
-                        recv(client_sockfd, img+pt, img_len,0);
-                        pt += img_len;
-                        img_len = img_len - img_len;
+                    else if(0 < img_len && img_len <= IMG_CHUNK_SIZE ){
+                        unsigned char * chunk = (unsigned char *)calloc(1, img_len);
+                        received_length = recv(client_sockfd, chunk, img_len, 0);
+                        memcpy(img+pt, chunk, img_len);
+                        pt += received_length;
+                        img_len = img_len - received_length;
+                        free(chunk);
                     }
-                    if(img_len < 1){
+                    else if(img_len < 1){
                         printf("pt = %d \n", pt);
                         break;
                     }
                 }
 
-                for(int i = 0; i < 10; i++){
-                    printf("hhhhh %c \n", img[i] );
-                }
+                close(client_sockfd);
 
                 file = fopen("image.jpg", "w");
                 if(file == NULL){
@@ -514,9 +521,9 @@ int main(int argc, char **argv){
                 else{
                     fwrite(img, 1, pt, file);
                     fclose(file);
+                    free(img);
                     detect_hand("image.jpg");
                 }
-                close(client_sockfd);
     		}
 
     		else if(pid < 0)
