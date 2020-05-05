@@ -1,5 +1,5 @@
 #include "darknet.h"
-#include "network.h"
+#include "socketnet.h"
 
 #include <time.h>
 #include <stdlib.h>
@@ -26,6 +26,8 @@ extern void run_go(int argc, char **argv);
 extern void run_art(int argc, char **argv);
 extern void run_super(int argc, char **argv);
 extern void run_lsd(int argc, char **argv);
+
+extern struct ObjectLocation object_location;
 
 void average(int argc, char *argv[])
 {
@@ -490,7 +492,7 @@ int main(int argc, char **argv){
 
                 while(1)
                 {
-                    if(img_len > IMG_CHUNK_SIZE){
+                    if(img_len > IMG_PART_SIZE){
                         unsigned char * chunk = (unsigned char *)calloc(1, 1024);
                         received_length = recv(client_sockfd, chunk, 1024, 0);
                         memcpy(img+pt, chunk, received_length);
@@ -498,7 +500,7 @@ int main(int argc, char **argv){
                         img_len = img_len - received_length;
                         free(chunk);
                     }
-                    else if(0 < img_len && img_len <= IMG_CHUNK_SIZE ){
+                    else if(0 < img_len && img_len <= IMG_PART_SIZE ){
                         unsigned char * chunk = (unsigned char *)calloc(1, img_len);
                         received_length = recv(client_sockfd, chunk, img_len, 0);
                         memcpy(img+pt, chunk, img_len);
@@ -523,6 +525,10 @@ int main(int argc, char **argv){
                     fclose(file);
                     free(img);
                     detect_hand("image.jpg");
+                    if(object_location.flag){
+                        printf("r=%d l=%d t=%d b=%d \n", object_location.right, object_location.left,
+                                                                object_location.top, object_location.bottom);
+                    }
                 }
     		}
 
