@@ -53,7 +53,7 @@ public class WebCam : MonoBehaviour
 #endif
         // 원본 화면 = _cam
         _cam = new WebCamTexture(Screen.width, Screen.height, 60);
-        //_display.texture = _cam;
+        _display.texture = _cam;
         _cam.Play();
 
         _skinDetector = new SkinDetector();
@@ -72,18 +72,17 @@ public class WebCam : MonoBehaviour
         }
 
         // YOLO 수행
-        if(_frame == 16 || _frame == 600 || _frame == 1200 || _frame == 1800 || _frame == 2400 || _frame == 3000)//!_handDetector.IsInitialized)
+        if(!_handDetector.IsInitialized)
         {
-            Debug.Log("if문");
             Client.Connect();
 
             Yolo();
-            Debug.Log("if문1" + _handDetector.IsInitialized);
-            _handDetector.IsInitialized = true;
-            Debug.Log("if문2" + _handDetector.IsInitialized);
+            _handDetector.IsInitialized = Client.Receive(_skinDetector.HandBoundary);
 
             Client.Close();
         }
+        if(!_handDetector.IsInitialized)
+            return;
 
         _imgFrame = OpenCvSharp.Unity.TextureToMat(_cam);
 
@@ -98,12 +97,12 @@ public class WebCam : MonoBehaviour
         // 손의 점들을 얻음
         _imgHand = _handDetector.GetHandLineAndPoint(_imgFrame, _imgMask);
 
-        //// 손 인식이 정확하지 않으면 프레임을 업데이트 하지 않음
-        //if(!_handDetector.IsCorrectDetection)
-        //{
-        //    texture = OpenCvSharp.Unity.MatToTexture(_imgHand, texture);
-        //    return;
-        //}
+        // 손 인식이 정확하지 않으면 프레임을 업데이트 하지 않음
+        if(!_handDetector.IsCorrectDetection)
+        {
+            texture = OpenCvSharp.Unity.MatToTexture(_imgHand, texture);
+            return;
+        }
 
         // 손가락 끝점을 그림
         _handDetector.DrawFingerPointAtImg(_imgHand);
@@ -118,7 +117,7 @@ public class WebCam : MonoBehaviour
         _handManager.Cvt3List.Clear();
 
         texture = OpenCvSharp.Unity.MatToTexture(_imgHand, texture);
-        _display.texture = texture;
+        //_display.texture = texture;
     }
 
     private void Yolo()
@@ -128,57 +127,6 @@ public class WebCam : MonoBehaviour
 
         byte[] jpg = img.EncodeToJPG();
         Debug.Log("jpg " + jpg.Length);
-
-        Debug.Log("    " + 1);
-        for(int i = 0; i < 10; i++)
-        {
-            Debug.Log(jpg[i]);
-        }
-        Debug.Log("    " + 2);
-        for(int i = 1024; i < 1034; i++)
-        {
-            Debug.Log(jpg[i]);
-        }
-        //Debug.Log("    " + 3);
-        //for(int i = 2048; i < 2058; i++)
-        //{
-        //    Debug.Log(jpg[i]);
-        //}
-        //Debug.Log("    " + 4);
-        //for(int i = 3072; i < 3082; i++)
-        //{
-        //    Debug.Log(jpg[i]);
-        //}
-        //Debug.Log("    " + 5);
-        //for(int i = 4096; i < 4106; i++)
-        //{
-        //    Debug.Log(jpg[i]);
-        //}
-        //Debug.Log("    " + 6);
-        //for(int i = 5120; i < 5130; i++)
-        //{
-        //    Debug.Log(jpg[i]);
-        //}
-        //Debug.Log("    " + 7);
-        //for(int i = 6144; i < 6154; i++)
-        //{
-        //    Debug.Log(jpg[i]);
-        //}
-        //Debug.Log("    " + 8);
-        //for(int i = 7168; i < 7178; i++)
-        //{
-        //    Debug.Log(jpg[i]);
-        //}
-        //Debug.Log("    " + 9);
-        //for(int i = 8192; i < 8202; i++)
-        //{
-        //    Debug.Log(jpg[i]);
-        //}
-        //Debug.Log("    " + 10);
-        //for(int i = 9216; i < 9226; i++)
-        //{
-        //    Debug.Log(jpg[i]);
-        //}
 
         // jpg 전송
         Client.Send(BitConverter.GetBytes(jpg.Length));

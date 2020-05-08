@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System;
+using UnityEngine.XR;
 
 public class Client
 {
@@ -15,9 +16,10 @@ public class Client
     private static Socket _socket;
 
     private static Thread _thread;
-    private static bool _isThreadRun;
+    public static bool IsConnected { private set; get; }
 
     private const int MaxDataLength = 1024;
+    private const int Ack = 1;
 
     public static void Setup()
     {
@@ -31,6 +33,7 @@ public class Client
 
     public static void Connect()
     {
+        IsConnected = true;
         _socket = new Socket(_ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
         _socket.Connect(_remoteEP);
         Debug.Log("서버에 접속");
@@ -56,31 +59,44 @@ public class Client
 
             byte[] trimData = new byte[sendingLength];
             Array.Copy(data, index, trimData, 0, sendingLength);
-            _socket.Send(trimData);
+
+            // ack 수신시까지 계속해서 전송
+            byte[] ack = new byte[1];
+            ack[0] = 44;
+            while(ack[0] != 1)
+            {
+                _socket.Send(trimData);
+                _socket.Receive(ack, 1, SocketFlags.None);
+            }
 
             index += MaxDataLength;
             restDataLength -= sendingLength;
         }
     }
 
-    public static void Receive()
+    public static bool Receive(HandBoundary handBoundary)
     {
-        byte[] bytes = new byte[100];
-        _socket.Receive(bytes, 100, SocketFlags.None);
-        Debug.Log(bytes[0]);
-    }
+        byte[] bytes = new byte[16];
+        int bytesRec = _socket.Receive(bytes, 16, SocketFlags.None);
 
-    private static void Run()
-    {
-        while(_isThreadRun)
+        // 인식이 제대로 이루어지지 않음
+        if(bytesRec == 1)
+            return false;
+
+        int[] datas = new int[4];
+        for(int i = 0; i < 4; i++)
         {
-            
+            datas[i] = BitConverter.ToInt32(bytes, i * 4);
         }
+
+        handBoundary.SetBoundary(datas);
+        Debug.Log("Hand Boundary " + handBoundary.Left + " " + handBoundary.Right + " " + handBoundary.Top + " " + handBoundary.Bottom);
+        return true;
     }
 
     public static void Close()
     {
-        _isThreadRun = false;
+        IsConnected = false;
         _socket.Close();
     }
 }

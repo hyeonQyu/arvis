@@ -1,4 +1,21 @@
 ﻿using OpenCvSharp;
+using UnityEngine.XR;
+
+public class HandBoundary
+{
+    public int Left { private set; get; }
+    public int Right { private set; get; }
+    public int Top { private set; get; }
+    public int Bottom { private set; get; }
+
+    public void SetBoundary(int[] datas)
+    {
+        Left = datas[0];
+        Right = datas[1];
+        Top = datas[2];
+        Bottom = datas[3];
+    }
+}
 
 public class SkinDetector
 {
@@ -23,8 +40,12 @@ public class SkinDetector
     private int _highHue1;
     private int _highHue2;
 
+    public HandBoundary HandBoundary { get; set; }
+
     public SkinDetector()
     {
+        HandBoundary = new HandBoundary();
+
         _skin = new Scalar(95, 127, 166);
         _table = new Scalar(176, 211, 238);
 
