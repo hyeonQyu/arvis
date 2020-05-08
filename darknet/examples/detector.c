@@ -609,14 +609,15 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
         else{
             save_image(im, "predictions");
 #ifdef OPENCV
-            make_window("predictions", 512, 512, 0);
-            show_image(im, "predictions", 0);
+            //make_window("predictions", 512, 512, 0);
+            //show_image(im, "predictions", 0);
 #endif
         }
-
         free_image(im);
         free_image(sized);
-        if (filename) break;
+        if (filename){
+            break;
+        }
     }
 }
 

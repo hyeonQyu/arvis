@@ -27,7 +27,9 @@ extern void run_art(int argc, char **argv);
 extern void run_super(int argc, char **argv);
 extern void run_lsd(int argc, char **argv);
 
-extern struct ObjectLocation object_location;
+const int IMG_PART_SIZE = 1024;
+
+extern struct ObjectLocation *object_location;
 
 void average(int argc, char *argv[])
 {
@@ -431,6 +433,7 @@ void detect_hand(char* filename)
 
 // Adding Socket Network
 int main(int argc, char **argv){
+    object_location = (struct ObjectLocation*) calloc(1, sizeof(struct ObjectLocation));
     int ret;
 
     FILE* file = NULL;
@@ -467,6 +470,7 @@ int main(int argc, char **argv){
         memset(&client_sockaddr, 0, sizeof(struct sockaddr_in));
         socklen = sizeof(struct sockaddr_in);
         while(1){
+            memset(&client_sockaddr, 0, sizeof(struct sockaddr_in));
             client_sockfd = accept(server_sockfd, (struct sockaddr *)&client_sockaddr, &socklen);
             if (client_sockfd == -1)
             {
@@ -490,6 +494,7 @@ int main(int argc, char **argv){
 
                 int received_length = 0;
 
+                int n = 0;
                 while(1)
                 {
                     if(img_len > IMG_PART_SIZE){
@@ -499,9 +504,11 @@ int main(int argc, char **argv){
                         pt += received_length;
                         img_len = img_len - received_length;
                         free(chunk);
+                        printf("received_len =  %d\n", received_length);
                     }
                     else if(0 < img_len && img_len <= IMG_PART_SIZE ){
                         unsigned char * chunk = (unsigned char *)calloc(1, img_len);
+                        printf("rest img_len =  %d\n", img_len);
                         received_length = recv(client_sockfd, chunk, img_len, 0);
                         memcpy(img+pt, chunk, img_len);
                         pt += received_length;
@@ -509,12 +516,11 @@ int main(int argc, char **argv){
                         free(chunk);
                     }
                     else if(img_len < 1){
-                        printf("pt = %d \n", pt);
                         break;
                     }
                 }
 
-                close(client_sockfd);
+                //close(client_sockfd);
 
                 file = fopen("image.jpg", "w");
                 if(file == NULL){
@@ -525,11 +531,17 @@ int main(int argc, char **argv){
                     fclose(file);
                     free(img);
                     detect_hand("image.jpg");
-                    if(object_location.flag){
-                        printf("r=%d l=%d t=%d b=%d \n", object_location.right, object_location.left,
-                                                                object_location.top, object_location.bottom);
+                    if(object_location->flag == 1){
+                        unsigned char* packet = (unsigned char*)calloc(1,4);
+                        memcpy(packet, object_location, 4);
+                        send(client_sockfd, packet, 4, 0);
+                        close(client_sockfd);
+                    }
+                    else{
+                        close(client_sockfd);
                     }
                 }
+                break;
     		}
 
     		else if(pid < 0)

@@ -1,8 +1,8 @@
-#include "socketnet.h"
 #include "image.h"
 #include "utils.h"
 #include "blas.h"
 #include "cuda.h"
+#include "socketnet.h"
 #include <stdio.h>
 #include <math.h>
 
@@ -15,7 +15,7 @@ int windows = 0;
 
 float colors[6][3] = { {1,0,1}, {0,0,1},{0,1,1},{0,1,0},{1,1,0},{1,0,0} };
 
-struct ObjectLocation object_location = {0, 0, 0, 0, 0};
+struct ObjectLocation *object_location;// = (ObjectLocation *) calloc(1, sizeof(ObjectLocation));
 
 float get_color(int c, int x, int max)
 {
@@ -300,13 +300,11 @@ void draw_detections(image im, detection *dets, int num, float thresh, char **na
                 free_image(label);
 
                 // 새로 추가 된 부분 LYJ
-                if( strcmp(names[class],"Person") ){
-                    object_location.flag = 1;
-                    object_location.right = right;
-                    object_location.left = left;
-                    object_location.top = top;
-                    object_location.bottom = bot;
-                }
+                object_location->flag = 1;
+                object_location->right = right;
+                object_location->left = left;
+                object_location->top = top;
+                object_location->bottom = bot;
             }
             if (dets[i].mask){
                 image mask = float_to_image(14, 14, 1, dets[i].mask);
