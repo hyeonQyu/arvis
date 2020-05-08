@@ -17,7 +17,7 @@ public class Client
     private static Thread _thread;
     private static bool _isThreadRun;
 
-    public const int MaxDataLength = 1024;
+    private const int MaxDataLength = 1024;
 
     public static void Setup()
     {
@@ -50,16 +50,12 @@ public class Client
         int restDataLength = data.Length;
 
         // 여러번에 걸쳐 jpg 1장 전송, 한 번 전송 최대 크기: 1024
-        for(int i = 0; i < data.Length / Client.MaxDataLength + 1; i++)
+        for(int i = 0; i < data.Length / MaxDataLength + 1; i++)
         {
-            int sendingLength = Math.Min(Client.MaxDataLength, restDataLength);
-            //// jpg 크기 정보(4byte)와 겹치지 않도록 하기 위함
-            //if(sendingLength == 4)
-            //    sendingLength++;
+            int sendingLength = Math.Min(MaxDataLength, restDataLength);
 
             byte[] trimData = new byte[sendingLength];
             Array.Copy(data, index, trimData, 0, sendingLength);
-
             _socket.Send(trimData);
 
             index += MaxDataLength;

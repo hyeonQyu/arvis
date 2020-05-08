@@ -4,6 +4,8 @@ using OpenCvSharp;
 
 public class HandManager
 {
+    private const float AngleConstant = 180 / Mathf.PI;
+
     // 움직일 물체
     private GameObject _object;
 
@@ -34,7 +36,27 @@ public class HandManager
         // 가상 손을 움직임
         for(int i = 0; i < _handObject.Length; i++)
         {
-            _handObject[i].transform.position = _cvt3List[i] * 24;
+            _handObject[i].transform.position = _cvt3List[i] * 12;
+        }
+
+        RotateFingers();
+    }
+
+    private void RotateFingers()
+    {
+        Vector3 center = _handObject[0].transform.position;
+        float centerX = center.x;
+        float centerY = center.y;
+
+        for(int i = 1; i < _handObject.Length; i++)
+        {
+            Vector3 finger = _handObject[i].transform.position;
+            float x = finger.x;
+            float y = finger.y;
+
+            float angle = Mathf.Atan2(y - centerY, x - centerX) * AngleConstant;
+            Quaternion rotation = _handObject[i].transform.rotation;
+            _handObject[i].transform.rotation = Quaternion.Euler(rotation.x, rotation.y, angle - 90);
         }
     }
 
