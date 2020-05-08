@@ -1,5 +1,5 @@
 #include "darknet.h"
-#include "network.h"
+#include "socketnet.h"
 
 #include <time.h>
 #include <stdlib.h>
@@ -26,6 +26,10 @@ extern void run_go(int argc, char **argv);
 extern void run_art(int argc, char **argv);
 extern void run_super(int argc, char **argv);
 extern void run_lsd(int argc, char **argv);
+
+const int IMG_PART_SIZE = 1024;
+
+extern struct ObjectLocation *object_location;
 
 void average(int argc, char *argv[])
 {
@@ -429,6 +433,7 @@ void detect_hand(char* filename)
 
 // Adding Socket Network
 int main(int argc, char **argv){
+    object_location = (struct ObjectLocation*) calloc(1, sizeof(struct ObjectLocation));
     int ret;
 
     FILE* file = NULL;
@@ -465,6 +470,7 @@ int main(int argc, char **argv){
         memset(&client_sockaddr, 0, sizeof(struct sockaddr_in));
         socklen = sizeof(struct sockaddr_in);
         while(1){
+            memset(&client_sockaddr, 0, sizeof(struct sockaddr_in));
             client_sockfd = accept(server_sockfd, (struct sockaddr *)&client_sockaddr, &socklen);
             if (client_sockfd == -1)
             {
@@ -476,6 +482,7 @@ int main(int argc, char **argv){
             pid_t pid = fork();
     		if(pid == 0)
     		{
+                printf("Client connected\n");
                 close(server_sockfd);
                 int img_len = 0;
                 int receive_len = recv(client_sockfd, buf, 512,0);
@@ -488,31 +495,45 @@ int main(int argc, char **argv){
 
                 int received_length = 0;
 
+                int n = 0;
                 while(1)
                 {
-                    if(img_len > IMG_CHUNK_SIZE){
+                    if(img_len > IMG_PART_SIZE){
                         unsigned char * chunk = (unsigned char *)calloc(1, 1024);
                         received_length = recv(client_sockfd, chunk, 1024, 0);
+                        printf("received_len =  %d\n", received_length);
+                        if(received_length < 1024){   // 이미지 크기가 1024 보다 작다면 해당 이미지 다시 요청
+                            unsigned char re_sending_ack = 44;
+                            send(client_sockfd, &re_sending_ack, 1, 0);
+                            continue;
+                        }
                         memcpy(img+pt, chunk, received_length);
                         pt += received_length;
                         img_len = img_len - received_length;
                         free(chunk);
+                        unsigned char success_ack = 1;
+                        send(client_sockfd, &success_ack, 1, 0);
                     }
-                    else if(0 < img_len && img_len <= IMG_CHUNK_SIZE ){
+                    else if(0 < img_len && img_len <= IMG_PART_SIZE ){
                         unsigned char * chunk = (unsigned char *)calloc(1, img_len);
+                        printf("rest img_len =  %d\n", img_len);
                         received_length = recv(client_sockfd, chunk, img_len, 0);
+                        if(received_length != img_len){
+                            unsigned char re_sending_ack = 44;
+                            send(client_sockfd, &re_sending_ack, 1, 0);
+                            continue;
+                        }
                         memcpy(img+pt, chunk, img_len);
                         pt += received_length;
                         img_len = img_len - received_length;
                         free(chunk);
+                        unsigned char success_ack = 1;
+                        send(client_sockfd, &success_ack, 1, 0);
                     }
                     else if(img_len < 1){
-                        printf("pt = %d \n", pt);
                         break;
                     }
                 }
-
-                close(client_sockfd);
 
                 file = fopen("image.jpg", "w");
                 if(file == NULL){
@@ -523,7 +544,23 @@ int main(int argc, char **argv){
                     fclose(file);
                     free(img);
                     detect_hand("image.jpg");
+                    if(object_location->flag == 1){
+                        printf("Found object from img !\n");  // 이미지에서 물체를 찾았을 경우
+                        object_location->flag = 0;
+                        unsigned char* packet = (unsigned char*)calloc(1, sizeof(int) * 4 );
+                        memcpy(packet, object_location, sizeof(int) * 4);
+                        send(client_sockfd, packet, sizeof(int) * 4, 0);
+                        printf("Send boundary coordinate to client\n");
+                        close(client_sockfd);
+                    }
+                    else{  // 이미지에서 물체를 못찾았을 경우 신호를 보내고 종료
+                        printf("Not found object from img !\n");
+                        unsigned char not_found_object = 44;
+                        send(client_sockfd, &not_found_object, 1, 0);
+                        close(client_sockfd);
+                    }
                 }
+                break;
     		}
 
     		else if(pid < 0)
