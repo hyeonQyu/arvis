@@ -10,6 +10,8 @@ public class WebCam : MonoBehaviour
 {
     private static WebCamTexture _cam;
     private RawImage _display;
+    private RawImage _vDisplay;
+
     [SerializeField]
     private Canvas _canvas;
 
@@ -45,12 +47,21 @@ public class WebCam : MonoBehaviour
         Debug.Log(Math.Atan2(-23, -10) * 180 / Math.PI);
         Debug.Log(Math.Atan2(-23, 10) * 180 / Math.PI);
         _display = GetComponent<RawImage>();
+        _vDisplay = _canvas.GetComponentsInChildren<RawImage>()[1];
+        
 
-#if UNITY_EDITOR
-        _canvas.transform.rotation = Quaternion.Euler(0, 0, 0);
-#elif UNITY_ANDROID
-        _canvas.transform.rotation = Quaternion.Euler(0, 0, 270);
+#if UNITY_EDITOR    // for PC
+        Debug.Log("Unity_Editor");
+        _display.transform.rotation = Quaternion.Euler(0, 180, 0);
+        _display.rectTransform.sizeDelta = new Vector2(_canvas.pixelRect.width, _canvas.pixelRect.height);
+        _vDisplay.rectTransform.sizeDelta = new Vector2(_canvas.pixelRect.width, _canvas.pixelRect.height);
+#elif UNITY_ANDROID // for Android
+        Debug.Log("Android");
+        _display.transform.rotation = Quaternion.Euler(0, 0, -90);
+        _display.rectTransform.sizeDelta = new Vector2(_canvas.pixelRect.height, _canvas.pixelRect.width);
+        _vDisplay.rectTransform.sizeDelta = new Vector2(_canvas.pixelRect.height, _canvas.pixelRect.width);
 #endif
+
         // 원본 화면 = _cam
         _cam = new WebCamTexture(Screen.width, Screen.height, 60);
         _display.texture = _cam;
@@ -60,29 +71,29 @@ public class WebCam : MonoBehaviour
         _handDetector = new HandDetector();
         _handManager = new HandManager(_object, _handObject, _canvas);
 
-        Client.Setup();
+        // Client.Setup();
     }
 
     private void Update()
     {
-        _frame++;
-        if(_frame <= 15)
-        {
-            return;
-        }
+        // _frame++;
+        // if(_frame <= 15)
+        // {
+        //     return;
+        // }
 
-        // YOLO 수행
-        if(!_handDetector.IsInitialized)
-        {
-            Client.Connect();
+        // // YOLO 수행
+        // if(!_handDetector.IsInitialized)
+        // {
+        //     Client.Connect();
 
-            Yolo();
-            _handDetector.IsInitialized = Client.Receive(_skinDetector.HandBoundary);
+        //     Yolo();
+        //     _handDetector.IsInitialized = Client.Receive(_skinDetector.HandBoundary);
 
-            Client.Close();
-        }
-        if(!_handDetector.IsInitialized)
-            return;
+        //     Client.Close();
+        // }
+        // if(!_handDetector.IsInitialized)
+        //     return;
 
         _imgFrame = OpenCvSharp.Unity.TextureToMat(_cam);
 
