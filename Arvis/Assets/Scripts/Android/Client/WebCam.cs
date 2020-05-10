@@ -64,10 +64,6 @@ public class WebCam : MonoBehaviour
 
     private void Start()
     {
-        Debug.Log(Math.Atan2(23, 10) * 180 / Math.PI);
-        Debug.Log(Math.Atan2(23, -10) * 180 / Math.PI);
-        Debug.Log(Math.Atan2(-23, -10) * 180 / Math.PI);
-        Debug.Log(Math.Atan2(-23, 10) * 180 / Math.PI);
         _display = GetComponent<RawImage>();
         _vDisplay = _canvas.GetComponentsInChildren<RawImage>()[1];
         

@@ -40,12 +40,8 @@ public class SkinDetector
     private int _highHue1;
     private int _highHue2;
 
-    public HandBoundary HandBoundary { get; set; }
-
     public SkinDetector()
     {
-        HandBoundary = new HandBoundary();
-
         _skin = new Scalar(95, 127, 166);
         _table = new Scalar(176, 211, 238);
 

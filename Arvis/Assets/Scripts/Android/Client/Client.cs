@@ -16,30 +16,56 @@ public class Client
     private static Socket _socket;
 
     private static Thread _thread;
+    private static bool _isThreadRun;
     public static bool IsConnected { private set; get; }
 
     private const int MaxDataLength = 1024;
     private const int Ack = 1;
+
+    private static byte[] _jpg;
+    public static HandBoundary ReceivedHandBoundary { get; private set; }
+    private static HandDetector _handDetector;
 
     public static void Setup()
     {
         _ipAddress = IPAddress.Parse(_ip);
         _remoteEP = new IPEndPoint(_ipAddress, 4000);
 
-        //_thread = new Thread(new ThreadStart(Run));
-        //_isThreadRun = true;
-        //_thread.Start();
+        _thread = new Thread(new ThreadStart(Run));
+
+        ReceivedHandBoundary = new HandBoundary();
     }
 
-    public static void Connect()
+    private static void Run()
+    {
+        while(_isThreadRun)
+        {
+            // jpg 전송
+            Send(BitConverter.GetBytes(_jpg.Length));
+            Send(_jpg);
+
+            // 사각형 범위 수신, 제대로 수신하면 쓰레드 종료
+            _handDetector.IsInitialized = Receive();
+            _isThreadRun = !_handDetector.IsInitialized;
+        }
+        Close();
+    }
+
+    public static void Connect(byte[] jpg, HandDetector handDetector)
     {
         IsConnected = true;
         _socket = new Socket(_ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
         _socket.Connect(_remoteEP);
         Debug.Log("서버에 접속");
+
+        _jpg = jpg;
+        _handDetector = handDetector;
+
+        _isThreadRun = true;
+        _thread.Start();
     }
 
-    public static void Send(byte[] data)
+    private static void Send(byte[] data)
     {
         // jpg 크기 전송
         if(data.Length == 4)
@@ -74,7 +100,7 @@ public class Client
         }
     }
 
-    public static bool Receive(HandBoundary handBoundary)
+    private static bool Receive()
     {
         byte[] bytes = new byte[16];
         int bytesRec = _socket.Receive(bytes, 16, SocketFlags.None);
@@ -89,8 +115,8 @@ public class Client
             datas[i] = BitConverter.ToInt32(bytes, i * 4);
         }
 
-        handBoundary.SetBoundary(datas);
-        Debug.Log("Hand Boundary " + handBoundary.Left + " " + handBoundary.Right + " " + handBoundary.Top + " " + handBoundary.Bottom);
+        ReceivedHandBoundary.SetBoundary(datas);
+        Debug.Log("Hand Boundary " + ReceivedHandBoundary.Left + " " + ReceivedHandBoundary.Right + " " + ReceivedHandBoundary.Top + " " + ReceivedHandBoundary.Bottom);
         return true;
     }
 
@@ -98,5 +124,6 @@ public class Client
     {
         IsConnected = false;
         _socket.Close();
+        Debug.Log("소켓 닫음");
     }
 }
