@@ -14,6 +14,8 @@ public class WebCam : MonoBehaviour
 
     [SerializeField]
     private Canvas _canvas;
+    [SerializeField]
+    private Button _buttonDetection;
 
     // 움직일(터치할) 오브젝트
     [SerializeField, Header("Object to Move")]
@@ -21,9 +23,6 @@ public class WebCam : MonoBehaviour
     // 가상 손의 손가락
     [SerializeField, Header("Finger & Center")]
     private GameObject[] _handObject;
-
-    // 서버로 전송할 데이터
-    private byte[] _data;
 
     // Resize할 크기
     private const int _width = 16 * 15;
@@ -34,9 +33,32 @@ public class WebCam : MonoBehaviour
     private Mat _imgMask;
     private Mat _imgHand;
 
-    SkinDetector _skinDetector;
-    HandDetector _handDetector;
-    HandManager _handManager;
+    private SkinDetector _skinDetector;
+    private HandDetector _handDetector;
+    private HandManager _handManager;
+
+    public SkinDetector SkinDetector 
+    {
+        set
+        {
+            _skinDetector = value;
+        }
+        get
+        {
+            return _skinDetector;
+        }
+    }
+    public HandDetector HandDetector
+    {
+        set
+        {
+            _handDetector = value;
+        }
+        get
+        {
+            return _handDetector;
+        }
+    }
 
     private int _frame = 0;
 
@@ -70,8 +92,6 @@ public class WebCam : MonoBehaviour
         _skinDetector = new SkinDetector();
         _handDetector = new HandDetector();
         _handManager = new HandManager(_object, _handObject, _canvas);
-
-        // Client.Setup();
     }
 
     private void Update()
@@ -92,8 +112,16 @@ public class WebCam : MonoBehaviour
 
         //     Client.Close();
         // }
-        // if(!_handDetector.IsInitialized)
-        //     return;
+
+        // 다시 손 인식 필요
+        if(!_handDetector.IsInitialized)
+        {
+            // 인식 버튼 활성화
+            if(!_buttonDetection.gameObject.activeSelf)
+                _buttonDetection.gameObject.SetActive(true);
+
+            return;
+        }
 
         _imgFrame = OpenCvSharp.Unity.TextureToMat(_cam);
 
@@ -131,21 +159,22 @@ public class WebCam : MonoBehaviour
         //_display.texture = texture;
     }
 
-    private void Yolo()
-    {
-        Texture2D img = new Texture2D(_cam.width, _cam.height);
-        img.SetPixels32(_cam.GetPixels32());
+    //private void Yolo()
+    //{
+    //    Texture2D img = new Texture2D(_cam.width, _cam.height);
+    //    img.SetPixels32(_cam.GetPixels32());
 
-        byte[] jpg = img.EncodeToJPG();
-        Debug.Log("jpg " + jpg.Length);
+    //    byte[] jpg = img.EncodeToJPG();
+    //    Debug.Log("jpg " + jpg.Length);
 
-        // jpg 전송
-        Client.Send(BitConverter.GetBytes(jpg.Length));
-        Client.Send(jpg);
-    }
+    //    // jpg 전송
+    //    Client.Send(BitConverter.GetBytes(jpg.Length));
+    //    Client.Send(jpg);
+    //}
 
     private void OnApplicationQuit()
     {
-        Client.Close();
+        if(Client.IsConnected)
+            Client.Close();
     }
 }
