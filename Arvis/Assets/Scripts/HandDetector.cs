@@ -265,7 +265,7 @@ public class HandDetector
                     continue;
 
                 if(_neighborhoodDistanceThreshold > Math.Abs(contours[defect[i].Item1].X - contours[defect[j].Item1].X) &&
-                         _neighborhoodDistanceThreshold > Math.Abs(contours[defect[i].Item1].Y - contours[defect[j].Item1].Y))
+                _neighborhoodDistanceThreshold > Math.Abs(contours[defect[i].Item1].Y - contours[defect[j].Item1].Y))
                 {
                     newPoints[i].Add(contours[defect[j].Item1]);
                     groupedIndex.Add(j);

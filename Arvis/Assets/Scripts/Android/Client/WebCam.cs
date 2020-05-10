@@ -10,14 +10,12 @@ public class WebCam : MonoBehaviour
 {
     private static WebCamTexture _cam;
     private RawImage _display;
+    [SerializeField, Header("Virtual Camera")]
+    private Camera _virtualCamera;
+    [SerializeField, Header("Virtual World(Render texture)")]
+    private RenderTexture _vWorld;
+    [SerializeField, Header("Virtual Display")]
     private RawImage _vDisplay;
-
-    [SerializeField]
-    private Canvas _canvas;
-
-    // 움직일(터치할) 오브젝트
-    [SerializeField, Header("Object to Move")]
-    private GameObject _object;
     // 가상 손의 손가락
     [SerializeField, Header("Finger & Center")]
     private GameObject[] _handObject;
@@ -39,37 +37,52 @@ public class WebCam : MonoBehaviour
     HandManager _handManager;
 
     private int _frame = 0;
+    public static bool isAndroid;
 
     private void Start()
     {
+
+#if UNITY_EDITOR    // for PC
+    isAndroid = false;
+#elif UNITY_ANDROID // for Android
+    isAndroid = true;
+#endif
+
         Debug.Log(Math.Atan2(23, 10) * 180 / Math.PI);
         Debug.Log(Math.Atan2(23, -10) * 180 / Math.PI);
         Debug.Log(Math.Atan2(-23, -10) * 180 / Math.PI);
         Debug.Log(Math.Atan2(-23, 10) * 180 / Math.PI);
-        _display = GetComponent<RawImage>();
-        _vDisplay = _canvas.GetComponentsInChildren<RawImage>()[1];
         
+        _display = GetComponent<RawImage>();
+        _display.rectTransform.sizeDelta = new Vector2(Screen.width, Screen.height);
 
-#if UNITY_EDITOR    // for PC
-        Debug.Log("Unity_Editor");
-        _display.transform.rotation = Quaternion.Euler(0, 180, 0);
-        _display.rectTransform.sizeDelta = new Vector2(_canvas.pixelRect.width, _canvas.pixelRect.height);
-        _vDisplay.rectTransform.sizeDelta = new Vector2(_canvas.pixelRect.width, _canvas.pixelRect.height);
-#elif UNITY_ANDROID // for Android
-        Debug.Log("Android");
-        _display.transform.rotation = Quaternion.Euler(0, 0, -90);
-        _display.rectTransform.sizeDelta = new Vector2(_canvas.pixelRect.height, _canvas.pixelRect.width);
-        _vDisplay.rectTransform.sizeDelta = new Vector2(_canvas.pixelRect.height, _canvas.pixelRect.width);
-#endif
+        _vDisplay.rectTransform.sizeDelta = new Vector2(Screen.width, Screen.height);
+        _vDisplay.texture = _vWorld;
+
+        if(!isAndroid)
+        {
+            _display.transform.rotation = Quaternion.Euler(0, 180, 0);
+        }
+        
+        _vWorld.width = Screen.width;
+        _vWorld.height = Screen.height;
+
+        // for Updating camera field of view
+        _virtualCamera.enabled = false;
+        _virtualCamera.enabled = true;
 
         // 원본 화면 = _cam
         _cam = new WebCamTexture(Screen.width, Screen.height, 60);
+
         _display.texture = _cam;
         _cam.Play();
 
         _skinDetector = new SkinDetector();
         _handDetector = new HandDetector();
-        _handManager = new HandManager(_object, _handObject, _canvas);
+
+        // no resize : _cam.width, _cam.height
+        // resize : _width, _height
+        _handManager = new HandManager(_handObject, _display, _width, _height);
 
         // Client.Setup();
     }
@@ -109,11 +122,11 @@ public class WebCam : MonoBehaviour
         _imgHand = _handDetector.GetHandLineAndPoint(_imgFrame, _imgMask);
 
         // 손 인식이 정확하지 않으면 프레임을 업데이트 하지 않음
-        if(!_handDetector.IsCorrectDetection)
-        {
-            texture = OpenCvSharp.Unity.MatToTexture(_imgHand, texture);
-            return;
-        }
+        // if(!_handDetector.IsCorrectDetection)
+        // {
+        //     texture = OpenCvSharp.Unity.MatToTexture(_imgHand, texture);
+        //     return;
+        // }
 
         // 손가락 끝점을 그림
         _handDetector.DrawFingerPointAtImg(_imgHand);
