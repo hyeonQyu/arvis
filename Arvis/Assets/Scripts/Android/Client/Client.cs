@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System;
 using UnityEngine.XR;
+using UnityEngine.UI;
 
 public class Client
 {
@@ -20,9 +21,10 @@ public class Client
     public static bool IsConnected { private set; get; }
 
     private const int MaxDataLength = 1024;
-    private const int Ack = 1;
+    private const byte Ack = 1;
 
-    private static byte[] _jpg;
+    private static RawImage _display;
+
     public static HandBoundary ReceivedHandBoundary { get; private set; }
     private static HandDetector _handDetector;
 
@@ -40,27 +42,34 @@ public class Client
     {
         while(_isThreadRun)
         {
+            // 이미지를 JPG로 변환
+            Texture2D img = (Texture2D)_display.texture;
+            byte[] jpg = img.EncodeToJPG();
+            Debug.Log("jpg " + jpg.Length);
+
             // jpg 전송
-            Send(BitConverter.GetBytes(_jpg.Length));
-            Send(_jpg);
+            Send(BitConverter.GetBytes(jpg.Length));
+            Send(jpg);
 
             // 사각형 범위 수신, 제대로 수신하면 쓰레드 종료
             _handDetector.IsInitialized = Receive();
             _isThreadRun = !_handDetector.IsInitialized;
         }
         Close();
+        Debug.Log("쓰레드 종료");
     }
 
-    public static void Connect(byte[] jpg, HandDetector handDetector)
+    public static void Connect(RawImage display, HandDetector handDetector)
     {
         IsConnected = true;
         _socket = new Socket(_ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
         _socket.Connect(_remoteEP);
         Debug.Log("서버에 접속");
 
-        _jpg = jpg;
+        _display = display;
         _handDetector = handDetector;
 
+        // Send 및 Receive 시작
         _isThreadRun = true;
         _thread.Start();
     }
@@ -89,7 +98,7 @@ public class Client
             // ack 수신시까지 계속해서 전송
             byte[] ack = new byte[1];
             ack[0] = 44;
-            while(ack[0] != 1)
+            while(ack[0] != Ack)
             {
                 _socket.Send(trimData);
                 _socket.Receive(ack, 1, SocketFlags.None);

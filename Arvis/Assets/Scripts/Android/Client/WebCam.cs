@@ -66,14 +66,14 @@ public class WebCam : MonoBehaviour
     }
 
     private int _frame = 0;
-    public static bool isAndroid;
+    public static bool IsAndroid { get; set; }
 
     private void Start()
     {
     #if UNITY_EDITOR    // for PC
-        isAndroid = false;
+        IsAndroid = false;
     #elif UNITY_ANDROID // for Android
-        isAndroid = true;
+        IsAndroid = true;
     #endif
 
         _display = GetComponent<RawImage>();
@@ -82,7 +82,7 @@ public class WebCam : MonoBehaviour
         _vDisplay.rectTransform.sizeDelta = new Vector2(Screen.width, Screen.height);
         _vDisplay.texture = _vWorld;
 
-        if(!isAndroid)
+        if(!IsAndroid)
         {
             _display.transform.rotation = Quaternion.Euler(0, 180, 0);
         }
@@ -110,24 +110,7 @@ public class WebCam : MonoBehaviour
 
     private void Update()
     {
-        // _frame++;
-        // if(_frame <= 15)
-        // {
-        //     return;
-        // }
-
-        // // YOLO 수행
-        // if(!_handDetector.IsInitialized)
-        // {
-        //     Client.Connect();
-
-        //     Yolo();
-        //     _handDetector.IsInitialized = Client.Receive(_skinDetector.HandBoundary);
-
-        //     Client.Close();
-        // }
-
-        //// 다시 손 인식 필요
+        //// 다시 손 인식 필요 - 서버 전송 할 때는 코드 활성화
         //if(!_handDetector.IsInitialized)
         //{
         //    // 인식 버튼 활성화
@@ -172,19 +155,6 @@ public class WebCam : MonoBehaviour
         texture = OpenCvSharp.Unity.MatToTexture(_imgHand, texture);
         _display.texture = texture;
     }
-
-    //private void Yolo()
-    //{
-    //    Texture2D img = new Texture2D(_cam.width, _cam.height);
-    //    img.SetPixels32(_cam.GetPixels32());
-
-    //    byte[] jpg = img.EncodeToJPG();
-    //    Debug.Log("jpg " + jpg.Length);
-
-    //    // jpg 전송
-    //    Client.Send(BitConverter.GetBytes(jpg.Length));
-    //    Client.Send(jpg);
-    //}
 
     private void OnApplicationQuit()
     {

@@ -67,7 +67,7 @@ public class HandManager
 
         Vector3 cvt3 = new Vector3(_screen.transform.position.x, _screen.transform.position.y, _screen.transform.position.z);
 
-        if(WebCam.isAndroid)
+        if(WebCam.IsAndroid)
         {
             cvt3.x += (point.X / _pWidth - 0.5f) * _screen.rectTransform.sizeDelta.x * _screen.transform.lossyScale.x;
         }

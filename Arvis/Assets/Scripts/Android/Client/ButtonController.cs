@@ -20,13 +20,8 @@ public class ButtonController : MonoBehaviour
     public void DetectHand()
     {
         gameObject.SetActive(false);
-
-        // 이미지를 JPG로 변환
-        Texture2D img = (Texture2D)_display.texture;
-        byte[] jpg = img.EncodeToJPG();
-        Debug.Log("jpg " + jpg.Length);
         
-        // 클라이언트 쓰레드에게 전송할 jpg 넘김
-        Client.Connect(jpg, _handDetector);
+        // 클라이언트 쓰레드에게 전송할 화면을 넘김
+        Client.Connect(_display, _handDetector);
     }
 }
