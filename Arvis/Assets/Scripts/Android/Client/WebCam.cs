@@ -97,7 +97,7 @@ public class WebCam : MonoBehaviour
         // 원본 화면 = _cam
         _cam = new WebCamTexture(Screen.width, Screen.height, 60);
 
-        _display.texture = _cam;
+        //_display.texture = _cam;
         _cam.Play();
 
         _skinDetector = new SkinDetector();
@@ -127,15 +127,15 @@ public class WebCam : MonoBehaviour
         //     Client.Close();
         // }
 
-        // 다시 손 인식 필요
-        if(!_handDetector.IsInitialized)
-        {
-            // 인식 버튼 활성화
-            if(!_buttonDetection.gameObject.activeSelf)
-                _buttonDetection.gameObject.SetActive(true);
+        //// 다시 손 인식 필요
+        //if(!_handDetector.IsInitialized)
+        //{
+        //    // 인식 버튼 활성화
+        //    if(!_buttonDetection.gameObject.activeSelf)
+        //        _buttonDetection.gameObject.SetActive(true);
 
-            return;
-        }
+        //    return;
+        //}
 
         _imgFrame = OpenCvSharp.Unity.TextureToMat(_cam);
 
@@ -170,7 +170,7 @@ public class WebCam : MonoBehaviour
         _handManager.Cvt3List.Clear();
 
         texture = OpenCvSharp.Unity.MatToTexture(_imgHand, texture);
-        //_display.texture = texture;
+        _display.texture = texture;
     }
 
     //private void Yolo()
