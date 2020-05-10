@@ -1,20 +1,19 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using OpenCvSharp;
+using UnityEngine.UI;
 
 public class HandManager
 {
     private const float AngleConstant = 180 / Mathf.PI;
 
-    // 움직일 물체
-    private GameObject _object;
-
     // 가상 손의 손가락
     private GameObject[] _handObject;
-
-    private Canvas _screen;
-
+    private RawImage _screen;
     private List<Vector3> _cvt3List;
+
+    private float _pWidth;
+    private float _pHeight;
     public List<Vector3> Cvt3List
     {
         get
@@ -23,12 +22,13 @@ public class HandManager
         }
     }
 
-    public HandManager(GameObject movingObject, GameObject[] handObject, Canvas screen)
+    public HandManager(GameObject[] handObject, RawImage screen, int width, int height)
     {
         _cvt3List = new List<Vector3>();
-        _object = movingObject;
         _handObject = handObject;
         _screen = screen;
+        _pWidth = (float)width;
+        _pHeight = (float)height;
     }
 
     public void MoveHand()
@@ -36,7 +36,7 @@ public class HandManager
         // 가상 손을 움직임
         for(int i = 0; i < _handObject.Length; i++)
         {
-            _handObject[i].transform.position = _cvt3List[i] * 12;
+            _handObject[i].transform.position = _cvt3List[i];
         }
 
         RotateFingers();
@@ -63,9 +63,21 @@ public class HandManager
     // 프레임 이미지의 손가락 끝 좌표들을 유니티 가상공간의 좌표로 변환
     private Vector3 Point2Vector3(Point point)
     {
-        Vector3 cvt3 = new Vector3(0, 0, _object.transform.position.z);
-        cvt3.x = (point.X - _screen.GetComponent<RectTransform>().sizeDelta.x / 2) * _screen.GetComponent<Transform>().transform.lossyScale.x;
-        cvt3.y = (_screen.GetComponent<RectTransform>().sizeDelta.y / 2 - point.Y) * _screen.GetComponent<Transform>().transform.lossyScale.y;
+        Debug.Log("Point = "+ point);
+
+        Vector3 cvt3 = new Vector3(_screen.transform.position.x, _screen.transform.position.y, _screen.transform.position.z);
+
+        if(WebCam.isAndroid)
+        {
+            cvt3.x += (point.X / _pWidth - 0.5f) * _screen.rectTransform.sizeDelta.x * _screen.transform.lossyScale.x;
+        }
+        else
+        {
+            cvt3.x += (0.5f - point.X / _pWidth) * _screen.rectTransform.sizeDelta.x * _screen.transform.lossyScale.x;
+        }
+        
+        cvt3.y += (0.5f - point.Y / _pHeight) * _screen.rectTransform.sizeDelta.y * _screen.transform.lossyScale.y;
+
         return cvt3;
     }
 
