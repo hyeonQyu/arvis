@@ -17,11 +17,6 @@ public class WebCam : MonoBehaviour
     [SerializeField, Header("Virtual Display")]
     private RawImage _vDisplay;
 
-    [SerializeField]
-    private Canvas _canvas;
-    [SerializeField]
-    private Button _buttonDetection;
-
     // 움직일(터치할) 오브젝트
     [SerializeField, Header("Object to Move")]
     private GameObject _object;
@@ -42,31 +37,8 @@ public class WebCam : MonoBehaviour
     private HandDetector _handDetector;
     private HandManager _handManager;
 
-    public SkinDetector SkinDetector
-    {
-        set
-        {
-            _skinDetector = value;
-        }
-        get
-        {
-            return _skinDetector;
-        }
-    }
-    public HandDetector HandDetector
-    {
-        set
-        {
-            _handDetector = value;
-        }
-        get
-        {
-            return _handDetector;
-        }
-    }
-
     private int _frame = 0;
-    public static bool IsAndroid { get; set; }
+    public static bool IsAndroid { get; private set; }
 
     private void Start()
     {
@@ -110,15 +82,15 @@ public class WebCam : MonoBehaviour
 
     private void Update()
     {
-        //// 다시 손 인식 필요 - 서버 전송 할 때는 코드 활성화
-        //if(!_handDetector.IsInitialized)
-        //{
-        //    // 인식 버튼 활성화
-        //    if(!_buttonDetection.gameObject.activeSelf)
-        //        _buttonDetection.gameObject.SetActive(true);
+        _frame++;
+        if(_frame < 120)
+            return;
 
-        //    return;
-        //}
+        // 서버에 이미지를 전송하여 손 인식(클라이언트 스레드에게 넘김)
+        if(!_handDetector.IsInitialized)
+        {
+            Client.Connect(_display, _handDetector, _skinDetector);
+        }
 
         _imgFrame = OpenCvSharp.Unity.TextureToMat(_cam);
 

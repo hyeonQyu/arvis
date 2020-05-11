@@ -25,8 +25,8 @@ public class Client
 
     private static RawImage _display;
 
-    public static HandBoundary ReceivedHandBoundary { get; private set; }
     private static HandDetector _handDetector;
+    private static SkinDetector _skinDetector;
 
     public static void Setup()
     {
@@ -59,7 +59,7 @@ public class Client
         Debug.Log("쓰레드 종료");
     }
 
-    public static void Connect(RawImage display, HandDetector handDetector)
+    public static void Connect(RawImage display, HandDetector handDetector, SkinDetector skinDetector)
     {
         IsConnected = true;
         _socket = new Socket(_ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
@@ -68,6 +68,7 @@ public class Client
 
         _display = display;
         _handDetector = handDetector;
+        _skinDetector = skinDetector;
 
         // Send 및 Receive 시작
         _isThreadRun = true;
@@ -124,14 +125,15 @@ public class Client
             datas[i] = BitConverter.ToInt32(bytes, i * 4);
         }
 
-        ReceivedHandBoundary.SetBoundary(datas);
-        Debug.Log("Hand Boundary " + ReceivedHandBoundary.Left + " " + ReceivedHandBoundary.Right + " " + ReceivedHandBoundary.Top + " " + ReceivedHandBoundary.Bottom);
+        _skinDetector.HandBoundary.SetBoundary(datas);
+        Debug.Log("Hand Boundary " + _skinDetector.HandBoundary.Left + " " + _skinDetector.HandBoundary.Right + " " + _skinDetector.HandBoundary.Top + " " + _skinDetector.HandBoundary.Bottom);
         return true;
     }
 
     public static void Close()
     {
         IsConnected = false;
+        _isThreadRun = false;
         _socket.Close();
         Debug.Log("소켓 닫음");
     }
