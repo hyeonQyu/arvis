@@ -78,6 +78,8 @@ public class WebCam : MonoBehaviour
         // no resize : _cam.width, _cam.height
         // resize : _width, _height
         _handManager = new HandManager(_handObject, _display, _width, _height);
+
+        Client.Setup();
     }
 
     private void Update()

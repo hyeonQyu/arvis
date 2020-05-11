@@ -34,8 +34,6 @@ public class Client
         _remoteEP = new IPEndPoint(_ipAddress, 4000);
 
         _thread = new Thread(new ThreadStart(Run));
-
-        ReceivedHandBoundary = new HandBoundary();
     }
 
     private static void Run()
