@@ -17,9 +17,6 @@ public class WebCam : MonoBehaviour
     [SerializeField, Header("Virtual Display")]
     private RawImage _vDisplay;
 
-    // 움직일(터치할) 오브젝트
-    [SerializeField, Header("Object to Move")]
-    private GameObject _object;
     // 가상 손의 손가락
     [SerializeField, Header("Finger & Center")]
     private GameObject[] _handObject;
