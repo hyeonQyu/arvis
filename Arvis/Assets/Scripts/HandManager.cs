@@ -63,8 +63,6 @@ public class HandManager
     // 프레임 이미지의 손가락 끝 좌표들을 유니티 가상공간의 좌표로 변환
     private Vector3 Point2Vector3(Point point)
     {
-        Debug.Log("Point = "+ point);
-
         Vector3 cvt3 = new Vector3(_screen.transform.position.x, _screen.transform.position.y, _screen.transform.position.z);
 
         if(WebCam.IsAndroid)

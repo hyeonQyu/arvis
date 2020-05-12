@@ -69,7 +69,7 @@ public class WebCam : MonoBehaviour
         // 원본 화면 = _cam
         _cam = new WebCamTexture(Screen.width, Screen.height, 60);
 
-        //_display.texture = _cam;
+        _display.texture = _cam;
         _cam.Play();
 
         _skinDetector = new SkinDetector();
@@ -89,9 +89,13 @@ public class WebCam : MonoBehaviour
             return;
 
         // 서버에 이미지를 전송하여 손 인식(클라이언트 스레드에게 넘김)
-        if(!_handDetector.IsInitialized)
+        if(!_handDetector.IsInitialized && !Client.IsThreadRun)
         {
-            Client.Connect(_display, _handDetector, _skinDetector);
+            Texture2D img = new Texture2D(_cam.width, _cam.height);
+            img.SetPixels32(_cam.GetPixels32());
+
+            byte[] jpg = img.EncodeToJPG();
+            Client.Connect(jpg, _handDetector, _skinDetector);
         }
 
         _imgFrame = OpenCvSharp.Unity.TextureToMat(_cam);
@@ -127,7 +131,7 @@ public class WebCam : MonoBehaviour
         _handManager.Cvt3List.Clear();
 
         texture = OpenCvSharp.Unity.MatToTexture(_imgHand, texture);
-        _display.texture = texture;
+        //_display.texture = texture;
     }
 
     private void OnApplicationQuit()

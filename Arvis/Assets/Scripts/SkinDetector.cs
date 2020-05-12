@@ -47,6 +47,8 @@ public class SkinDetector
         _skin = new Scalar(95, 127, 166);
         _table = new Scalar(176, 211, 238);
 
+        HandBoundary = new HandBoundary();
+
         InitializeHsv();
     }
 

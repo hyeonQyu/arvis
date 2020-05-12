@@ -11,19 +11,19 @@ using UnityEngine.UI;
 public class Client
 {
     //private static string _ip = "127.0.0.1";
-    private static string _ip = "192.168.0.18";
+    private static string _ip = "192.168.0.4";
     private static IPAddress _ipAddress;
     private static IPEndPoint _remoteEP;
     private static Socket _socket;
 
     private static Thread _thread;
-    private static bool _isThreadRun;
+    public static bool IsThreadRun { private set; get; }
     public static bool IsConnected { private set; get; }
 
     private const int MaxDataLength = 1024;
     private const byte Ack = 1;
 
-    private static RawImage _display;
+    private static byte[] _jpg;
 
     private static HandDetector _handDetector;
     private static SkinDetector _skinDetector;
@@ -38,39 +38,39 @@ public class Client
 
     private static void Run()
     {
-        while(_isThreadRun)
+        while(IsThreadRun)
         {
-            // 이미지를 JPG로 변환
-            Texture2D img = (Texture2D)_display.texture;
-            byte[] jpg = img.EncodeToJPG();
-            Debug.Log("jpg " + jpg.Length);
+            Debug.Log("jpg " + _jpg.Length);
 
             // jpg 전송
-            Send(BitConverter.GetBytes(jpg.Length));
-            Send(jpg);
+            Send(BitConverter.GetBytes(_jpg.Length));
+            Send(_jpg);
 
             // 사각형 범위 수신, 제대로 수신하면 쓰레드 종료
             _handDetector.IsInitialized = Receive();
-            _isThreadRun = !_handDetector.IsInitialized;
+            Debug.Log("쓰레드 수신 끝");
+            IsThreadRun = !_handDetector.IsInitialized;
+            Debug.Log("쓰레드 " + IsThreadRun);
         }
+        _thread.Abort();
         Close();
         Debug.Log("쓰레드 종료");
     }
 
-    public static void Connect(RawImage display, HandDetector handDetector, SkinDetector skinDetector)
+    public static void Connect(byte[] jpg, HandDetector handDetector, SkinDetector skinDetector)
     {
         IsConnected = true;
         _socket = new Socket(_ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
         _socket.Connect(_remoteEP);
-        Debug.Log("서버에 접속");
+        Debug.Log("쓰레드 서버에 접속");
 
-        _display = display;
+        _jpg = jpg;
         _handDetector = handDetector;
         _skinDetector = skinDetector;
 
         // Send 및 Receive 시작
-        _isThreadRun = true;
         _thread.Start();
+        IsThreadRun = true;
     }
 
     private static void Send(byte[] data)
@@ -110,12 +110,17 @@ public class Client
 
     private static bool Receive()
     {
+        Debug.Log("쓰레드 받음");
         byte[] bytes = new byte[16];
         int bytesRec = _socket.Receive(bytes, 16, SocketFlags.None);
+        Debug.Log("쓰레드에서 받은 크기 " + bytesRec);
 
         // 인식이 제대로 이루어지지 않음
         if(bytesRec == 1)
+        {
+            Debug.Log("쓰레드 Hand Boundary Fail");
             return false;
+        }
 
         int[] datas = new int[4];
         for(int i = 0; i < 4; i++)
@@ -124,14 +129,14 @@ public class Client
         }
 
         _skinDetector.HandBoundary.SetBoundary(datas);
-        Debug.Log("Hand Boundary " + _skinDetector.HandBoundary.Left + " " + _skinDetector.HandBoundary.Right + " " + _skinDetector.HandBoundary.Top + " " + _skinDetector.HandBoundary.Bottom);
+        Debug.Log("쓰레드 Hand Boundary " + _skinDetector.HandBoundary.Left + " " + _skinDetector.HandBoundary.Right + " " + _skinDetector.HandBoundary.Top + " " + _skinDetector.HandBoundary.Bottom);
         return true;
     }
 
     public static void Close()
     {
         IsConnected = false;
-        _isThreadRun = false;
+        IsThreadRun = false;
         _socket.Close();
         Debug.Log("소켓 닫음");
     }
