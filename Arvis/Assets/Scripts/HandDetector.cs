@@ -49,6 +49,13 @@ public class HandDetector
         }
     }
     private double _radius;
+    public double Radius
+    {
+        get
+        {
+            return _radius;
+        }
+    }
 
     // 손가락 끝 점
     private List<Point> _fingerPoint;
