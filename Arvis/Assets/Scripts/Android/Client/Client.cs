@@ -11,12 +11,12 @@ using UnityEngine.UI;
 public class Client
 {
     //private static string _ip = "127.0.0.1";
-    private static string _ip = "192.168.0.4";
+    private static string _ip = "10.21.20.21";
     private static IPAddress _ipAddress;
     private static IPEndPoint _remoteEP;
     private static Socket _socket;
 
-    private static Thread _thread;
+    public static Thread Thread { get; private set; }
     public static bool IsThreadRun { private set; get; }
     public static bool IsConnected { private set; get; }
 
@@ -32,15 +32,14 @@ public class Client
     {
         _ipAddress = IPAddress.Parse(_ip);
         _remoteEP = new IPEndPoint(_ipAddress, 4000);
-
-        _thread = new Thread(new ThreadStart(Run));
     }
 
     private static void Run()
     {
+        Debug.Log("쓰레드 시작");
         while(IsThreadRun)
         {
-            Debug.Log("jpg " + _jpg.Length);
+            Debug.Log("쓰레드 jpg " + _jpg.Length);
 
             // jpg 전송
             Send(BitConverter.GetBytes(_jpg.Length));
@@ -49,12 +48,10 @@ public class Client
             // 사각형 범위 수신, 제대로 수신하면 쓰레드 종료
             _handDetector.IsInitialized = Receive();
             Debug.Log("쓰레드 수신 끝");
-            IsThreadRun = !_handDetector.IsInitialized;
-            Debug.Log("쓰레드 " + IsThreadRun);
+            IsThreadRun = false;
         }
-        _thread.Abort();
         Close();
-        Debug.Log("쓰레드 종료");
+        Thread.Join();
     }
 
     public static void Connect(byte[] jpg, HandDetector handDetector, SkinDetector skinDetector)
@@ -69,8 +66,10 @@ public class Client
         _skinDetector = skinDetector;
 
         // Send 및 Receive 시작
-        _thread.Start();
+        Thread = new Thread(new ThreadStart(Run));
         IsThreadRun = true;
+        Debug.Log("쓰레드 시작 직전");
+        Thread.Start();
     }
 
     private static void Send(byte[] data)
@@ -110,7 +109,6 @@ public class Client
 
     private static bool Receive()
     {
-        Debug.Log("쓰레드 받음");
         byte[] bytes = new byte[16];
         int bytesRec = _socket.Receive(bytes, 16, SocketFlags.None);
         Debug.Log("쓰레드에서 받은 크기 " + bytesRec);

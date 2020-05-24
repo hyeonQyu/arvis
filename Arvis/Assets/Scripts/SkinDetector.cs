@@ -22,10 +22,8 @@ public class SkinDetector
     private int _rangeCount;
 
     private Scalar _skin;
-    private Scalar _table;
 
     private Mat _rgbColor;
-    private Mat _rgbColor2;
     private Mat _hsvColor;
 
     private int _hue;
@@ -44,19 +42,15 @@ public class SkinDetector
 
     public SkinDetector()
     {
-        _skin = new Scalar(95, 127, 166);
-        _table = new Scalar(176, 211, 238);
-
         HandBoundary = new HandBoundary();
-
-        InitializeHsv();
     }
 
     // HSV를 위한 기본 값 세팅
     private void InitializeHsv()
     {
+        _skin = new Scalar(95, 127, 166);
+
         _rgbColor = new Mat(1, 1, MatType.CV_8UC3, _skin);
-        _rgbColor2 = new Mat(1, 1, MatType.CV_8UC3, _table);
         _hsvColor = new Mat();
 
         Cv2.CvtColor(_rgbColor, _hsvColor, ColorConversionCodes.BGR2HSV);
@@ -98,6 +92,8 @@ public class SkinDetector
     // 피부색을 검출하여 마스크 이미지를 만듦
     public Mat GetSkinMask(Mat img, int minCr = 128, int maxCr = 170, int minCb = 73, int maxCb = 158)
     {
+        InitializeHsv();
+
         // 블러 처리
         Mat imgBlur = new Mat();
         Cv2.GaussianBlur(img, imgBlur, new Size(5, 5), 0);

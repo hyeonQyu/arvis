@@ -411,8 +411,10 @@ void detect_hand(char* filename)
     //test_resize("data/bad.jpg");
     //test_box();
     //test_convolutional_layer();
-    char * cfg_path = "cfg/yolov2.cfg";
-    char * weight_path = "yolo.weights";
+    // 여기 부분이 argv. 파일 이름이 바뀌면 수정하자.
+    char * datacfg_path = "data/obj.data";
+    char * cfg_path = "yolo-obj.cfg";
+    char * weight_path = "yolo-hand-obj_30000.weights";
 
 #ifndef GPU
     gpu_index = -1;
@@ -426,7 +428,7 @@ void detect_hand(char* filename)
         float thresh = 0.5;
         //char *outfile = find_char_arg(argc, argv, "-out", 0);
         //int fullscreen = find_arg(argc, argv, "-fullscreen");
-        test_detector("cfg/coco.data", cfg_path, weight_path, filename, thresh, .5, 0, 0);
+        test_detector(datacfg_path, cfg_path, weight_path, filename, thresh, .5, 0, 0);
 
     return ;
 }
