@@ -5,16 +5,16 @@ using UnityEngine.UI;
 
 public class HandManager
 {
-    private const float AngleConstant = 180 / Mathf.PI;
+    private const float AngleConstant = 180 / Mathf.PI;     // 1도
 
     // 가상 손의 손가락
     private GameObject _hand;
     private GameObject[] _handObjects;
     private RawImage _screen;
     private List<Vector3> _cvt3List;
-
     private float _pWidth;
     private float _pHeight;
+    private bool isNew;
     public List<Vector3> Cvt3List
     {
         get
@@ -35,10 +35,17 @@ public class HandManager
         {
             _handObjects[i] = _hand.transform.GetChild(i).gameObject;
         }
+        isNew = false;
     }
 
     public void MoveHand(double radius)
     {
+        
+
+
+        // Lerp 써야할 곳
+
+
         // 가상 손 Z Axis 움직임
         Debug.Log("Debug = "+radius);
         _hand.transform.position = new Vector3(0, 0, _screen.transform.position.z + (float)(radius - 70));
@@ -48,17 +55,15 @@ public class HandManager
         {
             _handObjects[i].transform.localPosition = _cvt3List[i];
         }
-        
-        RotateFingers();
     }
 
     private void RotateFingers()
     {
-        Vector3 center = _handObjects[0].transform.localPosition;
+        Vector3 center = _cvt3List[0];
         float centerX = center.x;
         float centerY = center.y;
 
-        for(int i = 1; i < _handObjects.Length; i++)
+        for(int i = 1; i < _cvt3List.Count; i++)
         {
             Vector3 finger = _handObjects[i].transform.localPosition;
             float x = finger.x;
@@ -91,10 +96,31 @@ public class HandManager
 
     public void InputPoint(List<Point> pointList, Point center)
     {
+        isNew  = true;
+        // Center
         _cvt3List.Add(Point2Vector3(center));
+
+        // The others
         for(int i = 0; i < pointList.Count; i++)
         {
             _cvt3List.Add(Point2Vector3(pointList[i]));
         }
+
+        // Sort Finger Point
+    }
+    IEnumerator LerpCoroutine()
+    {
+        Debug.Log("Start Lerp Coroutine");
+
+        while(isNew)
+        {
+            
+            
+            
+        }
+        // 새로운 좌표 들어오기 전에 끝났을 때
+        isNew = false;
+
+        yield return null;      // 다음 Frame
     }
 }

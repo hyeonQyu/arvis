@@ -354,8 +354,7 @@ MonoBehaviour:
   _virtualCamera: {fileID: 0}
   _vWorld: {fileID: 0}
   _vDisplay: {fileID: 0}
-  _object: {fileID: 0}
-  _handObject: []
+  _hand: {fileID: 0}
 --- !u!114 &435354292
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -872,14 +871,7 @@ MonoBehaviour:
   _virtualCamera: {fileID: 585340158}
   _vWorld: {fileID: 8400000, guid: fe87b901425108f419425c89876ee515, type: 2}
   _vDisplay: {fileID: 1390089651}
-  _object: {fileID: 0}
-  _handObject:
-  - {fileID: 1425957082}
-  - {fileID: 1757995861}
-  - {fileID: 2084053305}
-  - {fileID: 942986938}
-  - {fileID: 117756237}
-  - {fileID: 1502250680}
+  _hand: {fileID: 499490097}
 --- !u!1 &755130657
 GameObject:
   m_ObjectHideFlags: 0
