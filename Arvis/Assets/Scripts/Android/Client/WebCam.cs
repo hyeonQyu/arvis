@@ -66,7 +66,7 @@ public class WebCam : MonoBehaviour
         // 원본 화면 = _cam
         _cam = new WebCamTexture(Screen.width, Screen.height, 60);
 
-        _display.texture = _cam;
+        //_display.texture = _cam;
         _cam.Play();
 
         _skinDetector = new SkinDetector();
@@ -76,25 +76,25 @@ public class WebCam : MonoBehaviour
         // resize : _width, _height
         _handManager = new HandManager(_hand, _display, _width, _height);
 
-        // Client.Setup();
+        Client.Setup();
     }
 
     private void Update()
     {
-        // _frame++;
-        // if(_frame < 120)
-        //     return;
+        _frame++;
+        if(_frame < 120)
+            return;
 
-        // // 서버에 이미지를 전송하여 손 인식(클라이언트 스레드에게 넘김)
-        // if(!_handDetector.IsInitialized && !Client.IsThreadRun)
-        // {
-        //     Texture2D img = new Texture2D(_cam.width, _cam.height);
-        //     img.SetPixels32(_cam.GetPixels32());
+        if(!Client.IsThreadRun && (!_handDetector.IsInitialized || _frame % 600 == 0))
+        {
+            Texture2D img = new Texture2D(_cam.width, _cam.height);
+            img.SetPixels32(_cam.GetPixels32());
 
-        //     byte[] jpg = img.EncodeToJPG();
-        //     Client.Connect(jpg, _handDetector, _skinDetector);
-        // }
-        
+            byte[] jpg = img.EncodeToJPG();
+            Debug.Log("메인 쓰레드 jpg 크기: " + jpg.Length);
+            Client.Connect(jpg, _handDetector, _skinDetector);
+        }
+
         _imgFrame = OpenCvSharp.Unity.TextureToMat(_cam);
 
         Texture2D texture = new Texture2D(_width, _height);
