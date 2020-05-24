@@ -108,19 +108,19 @@ public class HandManager
 
         // Sort Finger Point
     }
-    IEnumerator LerpCoroutine()
-    {
-        Debug.Log("Start Lerp Coroutine");
+    // IEnumerator LerpCoroutine()
+    // {
+    //     Debug.Log("Start Lerp Coroutine");
 
-        while(isNew)
-        {
+    //     while(isNew)
+    //     {
             
             
             
-        }
-        // 새로운 좌표 들어오기 전에 끝났을 때
-        isNew = false;
+    //     }
+    //     // 새로운 좌표 들어오기 전에 끝났을 때
+    //     isNew = false;
 
-        yield return null;      // 다음 Frame
-    }
+    //     yield return null;      // 다음 Frame
+    // }
 }
