@@ -76,26 +76,33 @@ public class WebCam : MonoBehaviour
         // resize : _width, _height
         _handManager = new HandManager(_hand, _display, _width, _height);
 
-        // Client.Setup();
+        Client.Setup();
     }
 
     private void Update()
     {
-        // _frame++;
-        // if(_frame < 120)
-        //     return;
-
-        // if(!Client.IsThreadRun && (!_handDetector.IsInitialized || _frame % 600 == 0))
-        // {
-        //     Texture2D img = new Texture2D(_cam.width, _cam.height);
-        //     img.SetPixels32(_cam.GetPixels32());
-
-        //     byte[] jpg = img.EncodeToJPG();
-        //     Debug.Log("메인 쓰레드 jpg 크기: " + jpg.Length);
-        //     Client.Connect(jpg, _handDetector, _skinDetector);
-        // }
+        _frame++;
+        if (_frame < 120)
+            return;
 
         _imgFrame = OpenCvSharp.Unity.TextureToMat(_cam);
+
+         if(!Client.IsThreadRun && (!_handDetector.IsInitialized || _frame % 600 == 0))
+         {
+            _skinDetector.ImgOrigin = _imgFrame.Clone();
+
+            Texture2D img = new Texture2D(_cam.width, _cam.height);
+            img.SetPixels32(_cam.GetPixels32());
+
+            byte[] jpg = img.EncodeToJPG();
+            Debug.Log("메인 쓰레드 jpg 크기: " + jpg.Length);
+            Client.Connect(jpg, _handDetector, _skinDetector);
+         }
+
+        if (!_skinDetector.ImgHandSection.Empty())
+        {
+            Cv2.ImShow("Test", _skinDetector.ImgHandSection);
+        }
 
         Texture2D texture = new Texture2D(_width, _height);
         Cv2.Resize(_imgFrame, _imgFrame, new Size(_width, _height));
@@ -127,7 +134,7 @@ public class WebCam : MonoBehaviour
         _handDetector.MainPoint.Clear();
         _handManager.Cvt3List.Clear();
 
-        texture = OpenCvSharp.Unity.MatToTexture(_imgHand, texture);
+        texture = OpenCvSharp.Unity.MatToTexture(_imgMask, texture);
         _display.texture = texture;
     }
 

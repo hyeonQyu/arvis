@@ -127,6 +127,7 @@ public class Client
         }
 
         _skinDetector.HandBoundary.SetBoundary(datas);
+        _skinDetector.SetSkinColor();
         Debug.Log("쓰레드 Hand Boundary " + _skinDetector.HandBoundary.Left + " " + _skinDetector.HandBoundary.Right + " " + _skinDetector.HandBoundary.Top + " " + _skinDetector.HandBoundary.Bottom);
         return true;
     }

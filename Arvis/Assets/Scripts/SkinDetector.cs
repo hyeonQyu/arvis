@@ -1,4 +1,5 @@
 ﻿using OpenCvSharp;
+using UnityEngine;
 using UnityEngine.XR;
 
 public class HandBoundary
@@ -39,6 +40,9 @@ public class SkinDetector
     private int _highHue2;
 
     public HandBoundary HandBoundary { get; set; }
+    public Mat ImgOrigin { private get; set; }
+
+    public Mat ImgHandSection { get; private set; }
 
     public SkinDetector()
     {
@@ -124,5 +128,29 @@ public class SkinDetector
         imgMask2.Release();
 
         return imgMask1;
+    }
+
+    public unsafe void SetSkinColor()
+    {
+        int width, height;;
+        width = HandBoundary.Right - HandBoundary.Left + 1;
+        height = HandBoundary.Bottom - HandBoundary.Top + 1;
+
+        ImgHandSection = new Mat(height, width, MatType.CV_8UC3);
+
+        byte* destPtr = ImgHandSection.DataPointer;
+        byte* srcPtr = ImgOrigin.DataPointer;
+
+        for (int i = 0; i < height; i++)
+        {
+            for(int j = 0; j < width; j++)
+            {
+                long destIndex = (i * ImgHandSection.Step()) + (ImgHandSection.ElemSize() * j);
+                long srcIndex = (HandBoundary.Top + i) * ImgOrigin.Step() + ImgOrigin.ElemSize() * (HandBoundary.Left + j);
+                destPtr[destIndex + 0] = srcPtr[srcIndex + 0];
+                destPtr[destIndex + 1] = srcPtr[srcIndex + 1];
+                destPtr[destIndex + 2] = srcPtr[srcIndex + 2];
+            }
+        }
     }
 }
