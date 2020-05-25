@@ -87,22 +87,7 @@ public class WebCam : MonoBehaviour
 
         _imgFrame = OpenCvSharp.Unity.TextureToMat(_cam);
 
-         if(!Client.IsThreadRun && (!_handDetector.IsInitialized || _frame % 600 == 0))
-         {
-            _skinDetector.ImgOrigin = _imgFrame.Clone();
-
-            Texture2D img = new Texture2D(_cam.width, _cam.height);
-            img.SetPixels32(_cam.GetPixels32());
-
-            byte[] jpg = img.EncodeToJPG();
-            Debug.Log("메인 쓰레드 jpg 크기: " + jpg.Length);
-            Client.Connect(jpg, _handDetector, _skinDetector);
-         }
-
-        if (!_skinDetector.ImgHandSection.Empty())
-        {
-            Cv2.ImShow("Test", _skinDetector.ImgHandSection);
-        }
+        SendJpgInClientThread();
 
         Texture2D texture = new Texture2D(_width, _height);
         Cv2.Resize(_imgFrame, _imgFrame, new Size(_width, _height));
@@ -110,7 +95,7 @@ public class WebCam : MonoBehaviour
         _handDetector.IsCorrectDetection = true;
 
         // 피부색으로 마스크 이미지를 검출
-        _imgMask = _skinDetector.GetSkinMask(_imgFrame);
+        _imgMask = _skinDetector.GetSkinMask(_imgFrame, _skinDetector.IsExtractedSkinColor);
 
         // 손의 점들을 얻음
         _imgHand = _handDetector.GetHandLineAndPoint(_imgFrame, _imgMask);
@@ -136,6 +121,21 @@ public class WebCam : MonoBehaviour
 
         texture = OpenCvSharp.Unity.MatToTexture(_imgMask, texture);
         _display.texture = texture;
+    }
+
+    private void SendJpgInClientThread()
+    {
+        if(!Client.IsThreadRun && (!_handDetector.IsInitialized || _frame % 600 == 0))
+        {
+            _skinDetector.ImgOrigin = _imgFrame.Clone();
+
+            Texture2D img = new Texture2D(_cam.width, _cam.height);
+            img.SetPixels32(_cam.GetPixels32());
+
+            byte[] jpg = img.EncodeToJPG();
+            Debug.Log("메인 쓰레드 jpg 크기: " + jpg.Length);
+            Client.Connect(jpg, _handDetector, _skinDetector);
+        }
     }
 
     private void OnApplicationQuit()
