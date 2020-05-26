@@ -8,6 +8,7 @@ using System.IO;
 
 public class WebCam : MonoBehaviour
 {
+    public Material[] _sortTest; // Remove this later(for the sorting test)
     private static WebCamTexture _cam;
     private RawImage _display;
     [SerializeField, Header("Virtual Camera")]
@@ -17,7 +18,7 @@ public class WebCam : MonoBehaviour
     [SerializeField, Header("Virtual Display")]
     private RawImage _vDisplay;
 
-    // 가상 손의 손가락
+    // 가상 손
     [SerializeField, Header("Hand")]
     private GameObject _hand;
 
@@ -34,6 +35,7 @@ public class WebCam : MonoBehaviour
     private HandDetector _handDetector;
     private HandManager _handManager;
 
+    private IEnumerator _moveSmooth;
     private int _frame = 0;
     public static bool IsAndroid { get; private set; }
 
@@ -73,10 +75,16 @@ public class WebCam : MonoBehaviour
         _handDetector = new HandDetector();
 
         // no resize : _cam.width, _cam.height
-        // resize : _width, _height
+        // resize : Width, Height
         _handManager = new HandManager(_hand, _display, Width, Height);
+        
+        // Client.Setup();
 
-        Client.Setup();
+        // Remove this later(for the sorting test)
+        for(int i=1; i<_hand.transform.childCount; i++)
+        {
+            _hand.transform.GetChild(i).GetChild(0).GetComponent<MeshRenderer>().material = _sortTest[i];
+        }
     }
 
     private void Update()
@@ -87,7 +95,7 @@ public class WebCam : MonoBehaviour
 
         _imgFrame = OpenCvSharp.Unity.TextureToMat(_cam);
 
-        SendJpgInClientThread();
+        // SendJpgInClientThread();
 
         Texture2D texture = new Texture2D(Width, Height);
         Cv2.Resize(_imgFrame, _imgFrame, new Size(Width, Height));
@@ -106,7 +114,7 @@ public class WebCam : MonoBehaviour
         // 손의 점들을 얻음
         _imgHand = _handDetector.GetHandLineAndPoint(_imgFrame, _imgMask);
 
-        //손 인식이 정확하지 않으면 프레임을 업데이트 하지 않음
+        // 손 인식이 정확하지 않으면 프레임을 업데이트 하지 않음
         if(!_handDetector.IsCorrectDetection)
         {
             //texture = OpenCvSharp.Unity.MatToTexture(_imgHand, texture);
@@ -118,15 +126,21 @@ public class WebCam : MonoBehaviour
 
         // 화면상의 손가락 끝 좌표를 가상세계 좌표로 변환
         _handManager.InputPoint(_handDetector.FingerPoint, _handDetector.Center);
-
+        
+        // Stop MoveSmooth Coroutine
+        StopMoveSmooth();
+        
         // 가상 손을 움직임
-        _handManager.MoveHand(_handDetector.Radius);
+        _handManager.MoveHand((float)_handDetector.Radius);
 
         _handDetector.MainPoint.Clear();
-        _handManager.Cvt3List.Clear();
 
         texture = OpenCvSharp.Unity.MatToTexture(_imgHand, texture);
         _display.texture = texture;
+
+        // _imgHand.Release();
+        // _imgMask.Release();
+        // _imgFrame.Release();
     }
 
     private void SendJpgInClientThread()
@@ -141,6 +155,8 @@ public class WebCam : MonoBehaviour
             byte[] jpg = img.EncodeToJPG();
             Debug.Log("메인 쓰레드 jpg 크기: " + jpg.Length);
             Client.Connect(jpg, _handDetector, _skinDetector);
+
+            // DestroyImmediate(img);
         }
     }
 
@@ -148,5 +164,23 @@ public class WebCam : MonoBehaviour
     {
         if(Client.IsConnected)
             Client.Close();
+    }
+
+    public void StartMoveSmooth(IEnumerator coroutine)
+    {
+        //Debug.Log("Start MoveSmooth Coroutine");
+        // Start Coroutine
+        _moveSmooth = coroutine;
+        StartCoroutine(_moveSmooth);
+    }
+
+    public void StopMoveSmooth()
+    {
+        if(_moveSmooth != null)
+        {
+            //Debug.Log("Stop MoveSmooth Coroutine");
+            // Stop Coroutine
+            StopCoroutine(_moveSmooth);
+        }
     }
 }
