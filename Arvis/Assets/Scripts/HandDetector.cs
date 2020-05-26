@@ -169,6 +169,8 @@ public class HandDetector
             // 손 중앙 갱신
             _center = GetHandCenter(imgFillHand);
             Cv2.Circle(imgHand, _center, /*(int)radius*/5, new Scalar(0, 0, 255));
+            Cv2.Circle(imgHand, prevCenter, 5, new Scalar(0, 255, 0));
+            Debug.Log("Radius " + _radius);
 
             // 인식이 부정확하지 않은지 평가
             EvaluateDetection(prevCenter);
@@ -318,7 +320,7 @@ public class HandDetector
         //Debug.Log("반지름: " + _radius);
 
         double maxDistance = _radius * 3 / 2;
-        if(_radius < 30 || _radius > 190)
+        if(_radius < WebCam.Width / 24 || _radius > WebCam.Width / 7.5) 
         {
             //Debug.Log("반지름이 너무 작거나 큼!----------------------------------------------------------------------------------");
             _isCorrectDetection = false;

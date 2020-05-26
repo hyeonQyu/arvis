@@ -22,8 +22,8 @@ public class WebCam : MonoBehaviour
     private GameObject _hand;
 
     // Resize할 크기
-    private const int _width = 16 * 15;
-    private const int _height = 9 * 15;
+    public static int Width = 16 * 15;
+    public static int Height = 9 * 15;
 
     // 손 인식에 사용될 프레임 이미지
     private Mat _imgFrame;
@@ -74,7 +74,7 @@ public class WebCam : MonoBehaviour
 
         // no resize : _cam.width, _cam.height
         // resize : _width, _height
-        _handManager = new HandManager(_hand, _display, _width, _height);
+        _handManager = new HandManager(_hand, _display, Width, Height);
 
         Client.Setup();
     }
@@ -89,10 +89,16 @@ public class WebCam : MonoBehaviour
 
         SendJpgInClientThread();
 
-        Texture2D texture = new Texture2D(_width, _height);
-        Cv2.Resize(_imgFrame, _imgFrame, new Size(_width, _height));
+        Texture2D texture = new Texture2D(Width, Height);
+        Cv2.Resize(_imgFrame, _imgFrame, new Size(Width, Height));
 
         _handDetector.IsCorrectDetection = true;
+
+        if(_skinDetector.IsReceivedSkinColor)
+        {
+            _skinDetector.SetSkinColor();
+            _skinDetector.IsReceivedSkinColor = false;
+        }
 
         // 피부색으로 마스크 이미지를 검출
         _imgMask = _skinDetector.GetSkinMask(_imgFrame, _skinDetector.IsExtractedSkinColor);
@@ -100,12 +106,12 @@ public class WebCam : MonoBehaviour
         // 손의 점들을 얻음
         _imgHand = _handDetector.GetHandLineAndPoint(_imgFrame, _imgMask);
 
-        // 손 인식이 정확하지 않으면 프레임을 업데이트 하지 않음
-        // if(!_handDetector.IsCorrectDetection)
-        // {
-        //     texture = OpenCvSharp.Unity.MatToTexture(_imgHand, texture);
-        //     return;
-        // }
+        //손 인식이 정확하지 않으면 프레임을 업데이트 하지 않음
+        if(!_handDetector.IsCorrectDetection)
+        {
+            //texture = OpenCvSharp.Unity.MatToTexture(_imgHand, texture);
+            return;
+        }
 
         // 손가락 끝점을 그림
         _handDetector.DrawFingerPointAtImg(_imgHand);
@@ -119,7 +125,7 @@ public class WebCam : MonoBehaviour
         _handDetector.MainPoint.Clear();
         _handManager.Cvt3List.Clear();
 
-        texture = OpenCvSharp.Unity.MatToTexture(_imgMask, texture);
+        texture = OpenCvSharp.Unity.MatToTexture(_imgHand, texture);
         _display.texture = texture;
     }
 
