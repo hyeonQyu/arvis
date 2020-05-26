@@ -65,58 +65,34 @@ public class SkinDetector
         int lowHue = hue - 10;
         int highHue = hue + 10;
 
+        int colorIndex = DefaultSkinColor;
+        if(isExtractedSkinColor)
+            colorIndex = ExtractedSkinColor;
+
         if(lowHue < 10)
         {
             _rangeCount = 2;
 
-            if(isExtractedSkinColor)
-            {
-                _highHue1[ExtractedSkinColor] = 180;
-                _lowHue1[ExtractedSkinColor] = lowHue + 180;
-                _highHue2[ExtractedSkinColor] = highHue;
-                _lowHue2[ExtractedSkinColor] = 0;
-            }
-            else
-            {
-                _highHue1[DefaultSkinColor] = 180;
-                _lowHue1[DefaultSkinColor] = lowHue + 180;
-                _highHue2[DefaultSkinColor] = highHue;
-                _lowHue2[DefaultSkinColor] = 0;
-            }            
+            _highHue1[colorIndex] = 180;
+            _lowHue1[colorIndex] = lowHue + 180;
+            _highHue2[colorIndex] = highHue;
+            _lowHue2[colorIndex] = 0;
         }
         else if(highHue > 170)
         {
             _rangeCount = 2;
 
-            if(isExtractedSkinColor)
-            {
-                _highHue1[ExtractedSkinColor] = lowHue;
-                _lowHue1[ExtractedSkinColor] = 180;
-                _highHue2[ExtractedSkinColor] = highHue - 180;
-                _lowHue2[ExtractedSkinColor] = 0;
-            }
-            else
-            {
-                _highHue1[DefaultSkinColor] = lowHue;
-                _lowHue1[DefaultSkinColor] = 180;
-                _highHue2[DefaultSkinColor] = highHue - 180;
-                _lowHue2[DefaultSkinColor] = 0;
-            }          
+            _highHue1[colorIndex] = lowHue;
+            _lowHue1[colorIndex] = 180;
+            _highHue2[colorIndex] = highHue - 180;
+            _lowHue2[colorIndex] = 0;  
         }
         else
         {
             _rangeCount = 1;
 
-            if(isExtractedSkinColor)
-            {
-                _lowHue1[ExtractedSkinColor] = lowHue;
-                _highHue1[ExtractedSkinColor] = highHue;
-            }
-            else
-            {
-                _lowHue1[DefaultSkinColor] = lowHue;
-                _highHue1[DefaultSkinColor] = highHue;
-            }
+            _lowHue1[colorIndex] = lowHue;
+            _highHue1[colorIndex] = highHue;
         }
     }
 
@@ -135,16 +111,16 @@ public class SkinDetector
         Mat imgMask1, imgMask2;
         imgMask1 = new Mat();
         imgMask2 = new Mat();
+
+        int colorIndex = DefaultSkinColor;
         if(isExtractedSkinColor)
-            Cv2.InRange(imgHsv, new Scalar(_lowHue1[ExtractedSkinColor], 50, 50), new Scalar(_highHue1[ExtractedSkinColor], 255, 255), imgMask1);
-        else
-            Cv2.InRange(imgHsv, new Scalar(_lowHue1[DefaultSkinColor], 50, 50), new Scalar(_highHue1[DefaultSkinColor], 255, 255), imgMask1);
+            colorIndex = ExtractedSkinColor;
+
+        Cv2.InRange(imgHsv, new Scalar(_lowHue1[colorIndex], 50, 50), new Scalar(_highHue1[colorIndex], 255, 255), imgMask1);
+
         if(_rangeCount == 2)
         {
-            if(isExtractedSkinColor)
-                Cv2.InRange(imgHsv, new Scalar(_lowHue2[ExtractedSkinColor], 50, 50), new Scalar(_highHue2[ExtractedSkinColor], 255, 255), imgMask2);
-            else
-                Cv2.InRange(imgHsv, new Scalar(_lowHue2[DefaultSkinColor], 50, 50), new Scalar(_highHue2[DefaultSkinColor], 255, 255), imgMask2);
+            Cv2.InRange(imgHsv, new Scalar(_lowHue2[colorIndex], 50, 50), new Scalar(_highHue2[colorIndex], 255, 255), imgMask2);
             imgMask1 |= imgMask2;
         }
 
