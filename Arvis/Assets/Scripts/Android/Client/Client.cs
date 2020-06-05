@@ -11,7 +11,7 @@ using UnityEngine.UI;
 public class Client
 {
     //private static string _ip = "127.0.0.1";
-    private static string _ip = "10.21.20.21";
+    private static string _ip = "192.168.0.13";
     private static IPAddress _ipAddress;
     private static IPEndPoint _remoteEP;
     private static Socket _socket;
@@ -127,7 +127,7 @@ public class Client
         }
 
         _skinDetector.HandBoundary.SetBoundary(datas);
-        _skinDetector.SetSkinColor();
+        _skinDetector.IsReceivedSkinColor = true;
         Debug.Log("쓰레드 Hand Boundary " + _skinDetector.HandBoundary.Left + " " + _skinDetector.HandBoundary.Right + " " + _skinDetector.HandBoundary.Top + " " + _skinDetector.HandBoundary.Bottom);
         return true;
     }

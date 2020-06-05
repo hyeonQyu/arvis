@@ -36,6 +36,8 @@ public class SkinDetector
     public Mat ImgOrigin { private get; set; }
     private Mat _imgHandSection;
 
+    public bool IsReceivedSkinColor { get; set; }
+
     public SkinDetector()
     {
         HandBoundary = new HandBoundary();
@@ -125,12 +127,12 @@ public class SkinDetector
         }
 
         //morphological opening 작은 점들을 제거
-        Cv2.Erode(imgMask1, imgMask1, Cv2.GetStructuringElement(MorphShapes.Ellipse, new Size(5, 5)));
-        Cv2.Dilate(imgMask1, imgMask1, Cv2.GetStructuringElement(MorphShapes.Ellipse, new Size(5, 5)));
+        Cv2.Erode(imgMask1, imgMask1, Cv2.GetStructuringElement(MorphShapes.Ellipse, new Size(3, 3)));
+        Cv2.Dilate(imgMask1, imgMask1, Cv2.GetStructuringElement(MorphShapes.Ellipse, new Size(3, 3)));
 
         //morphological closing 영역의 구멍 메우기
-        Cv2.Dilate(imgMask1, imgMask1, Cv2.GetStructuringElement(MorphShapes.Ellipse, new Size(5, 5)));
-        Cv2.Erode(imgMask1, imgMask1, Cv2.GetStructuringElement(MorphShapes.Ellipse, new Size(5, 5)));
+        Cv2.Dilate(imgMask1, imgMask1, Cv2.GetStructuringElement(MorphShapes.Ellipse, new Size(3, 3)));
+        Cv2.Erode(imgMask1, imgMask1, Cv2.GetStructuringElement(MorphShapes.Ellipse, new Size(3, 3)));
 
         imgMask2.Release();
 
