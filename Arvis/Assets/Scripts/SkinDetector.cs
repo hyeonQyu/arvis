@@ -69,7 +69,7 @@ public class SkinDetector
         if(isExtractedSkinColor)
             colorIndex = ExtractedSkinColor;
 
-        if(lowHue < 10)
+        if(lowHue < 0)
         {
             _rangeCount = 2;
 
@@ -78,7 +78,7 @@ public class SkinDetector
             _highHue2[colorIndex] = highHue;
             _lowHue2[colorIndex] = 0;
         }
-        else if(highHue > 170)
+        else if(highHue > 180)
         {
             _rangeCount = 2;
 
