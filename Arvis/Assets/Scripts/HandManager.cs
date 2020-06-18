@@ -104,20 +104,22 @@ public class HandManager
             finger = new Vector3(_cvt3List[i].x, _cvt3List[i].y, _cvt3List[i].z);
 
             float angle = Mathf.Atan2(finger.y - center.y, finger.x - center.x) * AngleConstant;
+            Debug.Log("i = " + i + "  angle = " + angle);
       
              //중복된 거 KEY 있으면 remove
-            if (_angleArray.ContainsKey((angle - 90 + 360) % 360))
+            if (_angleArray.ContainsKey((angle - 90)))
             {
-                _angleArray.Remove((angle - 90 + 360) % 360);
+                _angleArray.Remove(angle - 90);
             }
             
             // 각도에 해당하는 vector3 넣기
-            _angleArray.Add((angle - 90 + 360) % 360, finger);
+            _angleArray.Add(angle - 90, finger);
         }
         
         // KEY(각도) 오름차순 정렬
         _angleList = _angleArray.Keys.ToList();
         _angleList.Sort();
+        Debug.Log("sort sort sort + " + _angleList);
 
         // KEY(각도) 값에 따른 vector3 값 넣기
         for (int i = 1; i < _angleList.Count + 1; i++)
@@ -158,11 +160,12 @@ public class HandManager
         // Move smooth(From the second)
         if(!isStart)
         {   // Clamp Vector3 by radius
-            _cvt3List[0] = _preCvt3List[0] + Vector3.ClampMagnitude(_cvt3List[0] - _preCvt3List[0], radius * 2.5f);
+            _cvt3List[0] = _preCvt3List[0] + Vector3.ClampMagnitude(_cvt3List[0] - _preCvt3List[0], radius);
             for(int i=1; i<_cvt3List.Count; i++)
             {
-                _cvt3List[i] = _preCvt3List[i] + Vector3.ClampMagnitude(_cvt3List[i] - _preCvt3List[i], radius * 1.5f);
+                _cvt3List[i] = _preCvt3List[i] + Vector3.ClampMagnitude(_cvt3List[i] - _preCvt3List[i], radius);
             }
+            RotateFingers();
 
             // Round up radius and for Z axis Standard
             radius = Mathf.Round(radius*0.1f) * 10 - 70;
@@ -206,7 +209,7 @@ public class HandManager
     private void RotateFingers()
     {
         Debug.Log("cv3Listcount = " + _cvt3List.Count + "   handobjectsCount = " + _handObjects.Length + "    angleListCount = "+_angleList.Count);
-        for(int i = 1; i < _cvt3List.Count; i++)
+        for(int i = 1; i < _angleList.Count + 1; i++)
         {
             Quaternion rotation = _handObjects[i].transform.rotation;
             _handObjects[i].transform.rotation = Quaternion.Euler(rotation.x, rotation.y, _angleList[i-1]);   // angle값 변경
@@ -241,7 +244,7 @@ public class HandManager
             }
 
             // Fingers' direction follow Center
-            RotateFingers();
+            //RotateFingers();
             
             // For Next Clamp (X, Y Axis)
             _preCvt3List.Clear();
