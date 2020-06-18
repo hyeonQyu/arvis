@@ -104,7 +104,7 @@ public class HandManager
             finger = new Vector3(_cvt3List[i].x, _cvt3List[i].y, _cvt3List[i].z);
 
             float angle = Mathf.Atan2(finger.y - center.y, finger.x - center.x) * AngleConstant;
-            
+      
              //중복된 거 KEY 있으면 remove
             if (_angleArray.ContainsKey((angle - 90 + 360) % 360))
             {
@@ -114,27 +114,24 @@ public class HandManager
             // 각도에 해당하는 vector3 넣기
             _angleArray.Add((angle - 90 + 360) % 360, finger);
         }
-
+        
         // KEY(각도) 오름차순 정렬
         _angleList = _angleArray.Keys.ToList();
         _angleList.Sort();
-        
+
         // KEY(각도) 값에 따른 vector3 값 넣기
-        for (int i = 1; i < _angleList.Count; i++)
+        for (int i = 1; i < _angleList.Count + 1; i++)
         {
             _cvt3List[i] = _angleArray[_angleList[i-1]];
         }
         _angleArray.Clear();
-
-        // Align _cvt3List index and _angleList index(1 ~ 5)
-        _angleList.Insert(0, 0.0f);
     }
 
     public void MoveHand(float radius)
     {
         // Only choose one
-        // MoveSmooth(radius);
-        MoveHard(radius);
+        MoveSmooth(radius);
+        //MoveHard(radius);
     }
 
     private void MoveHard(float radius)
@@ -153,7 +150,7 @@ public class HandManager
         }
         
         // Fingers' direction follow Center
-        RotateFingers();
+        //RotateFingers();
     }
 
     private void MoveSmooth(float radius)
@@ -208,10 +205,11 @@ public class HandManager
     }
     private void RotateFingers()
     {
+        Debug.Log("cv3Listcount = " + _cvt3List.Count + "   handobjectsCount = " + _handObjects.Length + "    angleListCount = "+_angleList.Count);
         for(int i = 1; i < _cvt3List.Count; i++)
         {
             Quaternion rotation = _handObjects[i].transform.rotation;
-            _handObjects[i].transform.rotation = Quaternion.Euler(rotation.x, rotation.y, _angleList[i]);   // angle값 변경
+            _handObjects[i].transform.rotation = Quaternion.Euler(rotation.x, rotation.y, _angleList[i-1]);   // angle값 변경
         }
     }
 
