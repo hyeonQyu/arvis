@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using System;
 using OpenCvSharp;
 using System.IO;
+using System.Net.Sockets;
 
 public class WebCam : MonoBehaviour
 {
@@ -95,7 +96,11 @@ public class WebCam : MonoBehaviour
 
         _imgFrame = OpenCvSharp.Unity.TextureToMat(_cam);
 
-        SendJpgInClientThread();
+        try
+        {
+            SendJpgInClientThread();
+        }
+        catch(SocketException) { }
 
         Texture2D texture = new Texture2D(Width, Height);
         Cv2.Resize(_imgFrame, _imgFrame, new Size(Width, Height));
