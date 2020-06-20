@@ -4993,6 +4993,7 @@ GameObject:
   m_Component:
   - component: {fileID: 498342}
   - component: {fileID: 9598324}
+  - component: {fileID: -3666056815419614462}
   m_Layer: 0
   m_Name: mole_attack
   m_TagString: Untagged
@@ -5036,3 +5037,16 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!65 &-3666056815419614462
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 198342}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 34.743042, y: 39.858776, z: 36.80805}
+  m_Center: {x: -170.20583, y: -15.505169, z: 9.41027}
