@@ -58,7 +58,7 @@ public class HandManager
         if(_cvt3List.Count != 0)
         {
             _cvt3List.Clear();
-            _angleList.Clear();
+            //_angleList.Clear();
         }
 
         // _cvt3List : Center (Index : 0)
@@ -144,15 +144,20 @@ public class HandManager
         // Z Axis
         _hand.transform.localPosition = new Vector3(0, 0, _screen.transform.position.z);
         //_hand.transform.localPosition = new Vector3(0, 0, _screen.transform.position.z + radius);
-        
+
+        int pointLength = _cvt3List.Count;
         // X, Y Axis
-        for(int i=0; i<_cvt3List.Count; i++)
+        for(int i = 0; i < _handObjects.Length; i++)
         {
-            try
+            if(i < pointLength)
             {
+                _handObjects[i].SetActive(true);
                 _handObjects[i].transform.localPosition = _cvt3List[i];
             }
-            catch(Exception) { }
+            else
+            {
+                _handObjects[i].SetActive(false);
+            }
         }
         
         // Fingers' direction follow Center

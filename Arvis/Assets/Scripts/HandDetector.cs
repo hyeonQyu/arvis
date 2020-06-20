@@ -220,7 +220,7 @@ public class HandDetector
 
     public void DrawFingerPointAtImg(Mat img)
     {
-        int fingerNum = 5;
+        int fingerNum = 10;
         _fingerPoint = GetFingerPoint(fingerNum);
 
         // 임시로 점을 찍어 출력
@@ -248,7 +248,7 @@ public class HandDetector
     // 가까운 점들을 그룹화 하는 함수
     private List<List<Point>> GroupPoint(Point[] contours, Vec4i[] defect)
     {
-        _neighborhoodDistanceThreshold = (int)(_radius / 2 * 0.8);
+        _neighborhoodDistanceThreshold = (int)(_radius * 0.5);
 
         // 그룹들을 저장할 List
         List<List<Point>> newPoints = new List<List<Point>>();
