@@ -1,0 +1,72 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: loveduck
+  m_Shader: {fileID: 10752, guid: 0000000000000000f000000000000000, type: 0}
+  m_ShaderKeywords: 
+  m_LightmapFlags: 5
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _AmbientTex:
+        m_Texture: {fileID: 2800000, guid: 29731765a6afa3744a659b0dceac0bc0, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: 27dd8397dbc2cdb4a8b2b93abf02e711, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _diffuse:
+        m_Texture: {fileID: 2800000, guid: 27dd8397dbc2cdb4a8b2b93abf02e711, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _diffuseTex:
+        m_Texture: {fileID: 2800000, guid: 322db05e6d7ee334089564ca49ac3f91, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _main_texture:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _mask_texture:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _scetch_texture:
+        m_Texture: {fileID: 2800000, guid: e8ffad204757fed49baa88060ac5c7a8, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - _Grayscale: 1
+    - _bands: 2
+    - _light_str: 1.1428571
+    - _node_2392: 3
+    - _node_6051: 0
+    - _node_783: 0.8055629
+    - _outline_width: 0.2
+    - _rim_power: 5
+    - _rot_speed: 30
+    - _shadow_power: 0.8071429
+    - _shadow_str: 1
+    - _x_speed: 1
+    - _y_speed: 0
+    m_Colors:
+    - _BuffColor: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 0.588, g: 0.588, b: 0.588, a: 1}
+    - _Rim_color: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+    - _color: {r: 0.70689654, g: 0.70689654, b: 0.70689654, a: 1}
+    - _node_4218: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+    - _outline_color: {r: 0.007185565, g: 0.088208415, b: 0.9161596, a: 1}
+    - _scetch_color: {r: 0.89411765, g: 0.8011361, b: 0.61361015, a: 1}
+    - _shadow_color: {r: 1, g: 0.94814575, b: 0.8156863, a: 1}
