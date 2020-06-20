@@ -63,9 +63,14 @@ public class SkinDetector
         int hue = (int)hsvColor.At<Vec3b>(0, 0)[0];
         int saturation = (int)hsvColor.At<Vec3b>(0, 0)[1];
         int value = (int)hsvColor.At<Vec3b>(0, 0)[2];
-
+        Debug.Log("hue = " + hue + "saturation = " + saturation + "value = " + value);
         int lowHue = hue - 10;
         int highHue = hue + 10;
+        if (isExtractedSkinColor)
+        {
+            lowHue = hue - 5;
+            highHue = hue + 5;
+        }
 
         int colorIndex = DefaultSkinColor;
         if(isExtractedSkinColor)

@@ -78,7 +78,7 @@ public class WebCam : MonoBehaviour
         // resize : Width, Height
         _handManager = new HandManager(_hand, _display, Width, Height);
         
-        // Client.Setup();
+        Client.Setup();
 
         // Remove this later(for the sorting test)
         for(int i=1; i<_hand.transform.childCount; i++)
@@ -95,7 +95,7 @@ public class WebCam : MonoBehaviour
 
         _imgFrame = OpenCvSharp.Unity.TextureToMat(_cam);
 
-        // SendJpgInClientThread();
+        SendJpgInClientThread();
 
         Texture2D texture = new Texture2D(Width, Height);
         Cv2.Resize(_imgFrame, _imgFrame, new Size(Width, Height));
@@ -117,7 +117,8 @@ public class WebCam : MonoBehaviour
         // 손 인식이 정확하지 않으면 프레임을 업데이트 하지 않음
         if(!_handDetector.IsCorrectDetection)
         {
-            //texture = OpenCvSharp.Unity.MatToTexture(_imgHand, texture);
+            texture = OpenCvSharp.Unity.MatToTexture(_imgHand, texture);
+            _display.texture = texture;
             return;
         }
 
@@ -145,7 +146,7 @@ public class WebCam : MonoBehaviour
 
     private void SendJpgInClientThread()
     {
-        if(!Client.IsThreadRun && (!_handDetector.IsInitialized || _frame % 600 == 0))
+        if(!Client.IsThreadRun && (!_handDetector.IsInitialized || _frame % 1000 == 0))
         {
             _skinDetector.ImgOrigin = _imgFrame.Clone();
 

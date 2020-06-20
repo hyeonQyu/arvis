@@ -10,8 +10,8 @@ using UnityEngine.UI;
 
 public class Client
 {
-    private static string _ip = "127.0.0.1";
-    //private static string _ip = "192.168.0.13";
+    //private static string _ip = "127.0.0.1";
+    private static string _ip = "10.21.20.8";
     private static IPAddress _ipAddress;
     private static IPEndPoint _remoteEP;
     private static Socket _socket;

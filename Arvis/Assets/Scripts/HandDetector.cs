@@ -303,10 +303,13 @@ public class HandDetector
         // 내림차순으로 정렬
         distanceAndIndex.Sort((DistanceAndIndex a, DistanceAndIndex b) => -a.Distance.CompareTo(b.Distance));
 
-        for(int i = 0; i < fingerNum; i++)
+        if (!(_mainPoint.Count < fingerNum))
         {
-            // 가장 멀리있는 Point를  fingerNum 수 만큼 뽑아냄
-            fingerPoint.Add(_mainPoint[distanceAndIndex[i].Index]);
+            for (int i = 0; i < fingerNum; i++)
+            {
+                // 가장 멀리있는 Point를  fingerNum 수 만큼 뽑아냄
+                fingerPoint.Add(_mainPoint[distanceAndIndex[i].Index]);
+            }
         }
 
         return fingerPoint;
