@@ -66,7 +66,7 @@ public class WebCam : MonoBehaviour
         _vWorld.height = Screen.height;
 
         _bounds[0].transform.localPosition = new Vector3(0, Screen.height / 2, 0);
-        _bounds[1].transform.localPosition = new Vector3(0, -Screen.height / 2, 0);
+        _bounds[1].transform.localPosition = new Vector3(0, -Screen.height / 2 + 10, 0);
         _bounds[2].transform.localPosition = new Vector3(-Screen.width / 2, 0, 0);
         _bounds[3].transform.localPosition = new Vector3(Screen.width / 2, 0, 0);
 
