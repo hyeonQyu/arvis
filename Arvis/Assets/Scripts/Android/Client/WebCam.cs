@@ -19,6 +19,9 @@ public class WebCam : MonoBehaviour
     [SerializeField, Header("Virtual Display")]
     private RawImage _vDisplay;
 
+    [SerializeField]
+    private GameObject[] _bounds;
+
     // 가상 손
     [SerializeField, Header("Hand")]
     private GameObject _hand;
@@ -62,6 +65,11 @@ public class WebCam : MonoBehaviour
         _vWorld.width = Screen.width;
         _vWorld.height = Screen.height;
 
+        _bounds[0].transform.localPosition = new Vector3(0, Screen.height / 2, 0);
+        _bounds[1].transform.localPosition = new Vector3(0, -Screen.height / 2, 0);
+        _bounds[2].transform.localPosition = new Vector3(-Screen.width / 2, 0, 0);
+        _bounds[3].transform.localPosition = new Vector3(Screen.width / 2, 0, 0);
+
         // for Updating camera field of view
         _virtualCamera.enabled = false;
         _virtualCamera.enabled = true;
@@ -69,7 +77,7 @@ public class WebCam : MonoBehaviour
         // 원본 화면 = _cam
         _cam = new WebCamTexture(Screen.width, Screen.height, 60);
 
-        //_display.texture = _cam;
+        _display.texture = _cam;
         _cam.Play();
 
         _skinDetector = new SkinDetector();
@@ -141,8 +149,8 @@ public class WebCam : MonoBehaviour
 
         _handDetector.MainPoint.Clear();
 
-        texture = OpenCvSharp.Unity.MatToTexture(_imgHand, texture);
-        _display.texture = texture;
+        //texture = OpenCvSharp.Unity.MatToTexture(_imgHand, texture);
+        //_display.texture = texture;
 
         // _imgHand.Release();
         // _imgMask.Release();
