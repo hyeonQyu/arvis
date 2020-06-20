@@ -64,14 +64,14 @@ public class HandManager
         // _cvt3List : Center (Index : 0)
         _cvt3List.Add(Point2Vector3(center));
 
-        // _cvt3List : Finger points(Index : 1 ~ 5)
+        // _cvt3List : Finger points(Index : 1 ~ )
         for (int i = 0; i < pointList.Count; i++)
         {
             _cvt3List.Add(Point2Vector3(pointList[i]));
         }
 
         // Sort Fingers' Point
-        SortFingerPoints();
+        //SortFingerPoints();
     }
 
     private Vector3 Point2Vector3(Point point)
@@ -132,8 +132,8 @@ public class HandManager
     public void MoveHand(float radius)
     {
         // Only choose one
-        MoveSmooth(radius);
-        //MoveHard(radius);
+        //MoveSmooth(radius);
+        MoveHard(radius);
     }
 
     private void MoveHard(float radius)
@@ -148,7 +148,11 @@ public class HandManager
         // X, Y Axis
         for(int i=0; i<_cvt3List.Count; i++)
         {
-            _handObjects[i].transform.localPosition = _cvt3List[i];
+            try
+            {
+                _handObjects[i].transform.localPosition = _cvt3List[i];
+            }
+            catch(Exception) { }
         }
         
         // Fingers' direction follow Center

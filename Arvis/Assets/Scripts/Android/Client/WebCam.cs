@@ -81,11 +81,11 @@ public class WebCam : MonoBehaviour
         
         Client.Setup();
 
-        // Remove this later(for the sorting test)
-        for(int i=1; i<_hand.transform.childCount; i++)
-        {
-            _hand.transform.GetChild(i).GetChild(0).GetComponent<MeshRenderer>().material = _sortTest[i];
-        }
+        //// Remove this later(for the sorting test)
+        //for(int i=1; i<_hand.transform.childCount; i++)
+        //{
+        //    _hand.transform.GetChild(i).GetComponent<MeshRenderer>().material = _sortTest[i];
+        //}
     }
 
     private void Update()
@@ -119,22 +119,22 @@ public class WebCam : MonoBehaviour
         // 손의 점들을 얻음
         _imgHand = _handDetector.GetHandLineAndPoint(_imgFrame, _imgMask);
 
-        // 손 인식이 정확하지 않으면 프레임을 업데이트 하지 않음
-        if(!_handDetector.IsCorrectDetection)
-        {
-            texture = OpenCvSharp.Unity.MatToTexture(_imgHand, texture);
-            _display.texture = texture;
-            return;
-        }
+        //// 손 인식이 정확하지 않으면 프레임을 업데이트 하지 않음
+        //if(!_handDetector.IsCorrectDetection)
+        //{
+        //    texture = OpenCvSharp.Unity.MatToTexture(_imgHand, texture);
+        //    _display.texture = texture;
+        //    return;
+        //}
 
         // 손가락 끝점을 그림
-        _handDetector.DrawFingerPointAtImg(_imgHand);
+        //_handDetector.DrawFingerPointAtImg(_imgHand);
 
         // 화면상의 손가락 끝 좌표를 가상세계 좌표로 변환
-        _handManager.InputPoint(_handDetector.FingerPoint, _handDetector.Center);
+        _handManager.InputPoint(_handDetector.MainPoint, _handDetector.Center);
         
         // Stop MoveSmooth Coroutine
-        StopMoveSmooth();
+        //StopMoveSmooth();
         
         // 가상 손을 움직임
         _handManager.MoveHand((float)_handDetector.Radius);

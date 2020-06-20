@@ -161,8 +161,9 @@ public class HandDetector
         if(largestArea > 1)
         {
             Cv2.DrawContours(imgHand, contours, largestContourIndex, new Scalar(0, 255, 0));
-            Cv2.DrawContours(imgFillHand, contours, largestContourIndex, new Scalar(255, 0, 0));
-            Cv2.FloodFill(imgFillHand, _center, new Scalar(255, 0, 0));
+            Cv2.DrawContours(imgFillHand, contours, largestContourIndex, 255);
+            Point pixelInnerContour = FindPixelInnerContour(imgFillHand, contours[largestContourIndex]);
+            Cv2.FloodFill(imgFillHand, pixelInnerContour, 255);
             Cv2.DrawContours(imgHand, hull, largestContourIndex, new Scalar(0, 0, 255));
 
             Point prevCenter = _center;
@@ -173,27 +174,27 @@ public class HandDetector
             Debug.Log("Radius " + _radius);
 
             // 인식이 부정확하지 않은지 평가
-            EvaluateDetection(prevCenter);
+            //EvaluateDetection(prevCenter);
 
-            //// Draw defect  기존의 점과 선을 그리던 함수 -> 나중에 주석처리
-            //for(int i = 0; i < defects[largestContourIndex].Length; i++)
-            //{
-            //    Point start, end, far;
-            //    int d = defects[largestContourIndex][i].Item3;
+            // Draw defect  기존의 점과 선을 그리던 함수 -> 나중에 주석처리
+            for(int i = 0; i < defects[largestContourIndex].Length; i++)
+            {
+                Point start, end, far;
+                int d = defects[largestContourIndex][i].Item3;
 
-            //    start = contours[largestContourIndex][defects[largestContourIndex][i].Item0];
-            //    end = contours[largestContourIndex][defects[largestContourIndex][i].Item1];
-            //    far = contours[largestContourIndex][defects[largestContourIndex][i].Item2];
+                start = contours[largestContourIndex][defects[largestContourIndex][i].Item0];
+                end = contours[largestContourIndex][defects[largestContourIndex][i].Item1];
+                far = contours[largestContourIndex][defects[largestContourIndex][i].Item2];
 
-            //    if(d > 1)
-            //    {
-            //        Scalar scalar = Scalar.RandomColor();
-            //        //Cv2.Line(imgHand, start, far, scalar, 2, LineTypes.AntiAlias);
-            //        //Cv2.Line(imgHand, end, far, scalar, 2, LineTypes.AntiAlias);
-            //        //Cv2.Circle(imgHand, end, 5, scalar, -1, LineTypes.AntiAlias);
-            //        Debug.Log(i + " " + end);
-            //    }
-            //}
+                if(d > 1)
+                {
+                    Scalar scalar = Scalar.RandomColor();
+                    //Cv2.Line(imgHand, start, far, scalar, 2, LineTypes.AntiAlias);
+                    //Cv2.Line(imgHand, end, far, scalar, 2, LineTypes.AntiAlias);
+                    //Cv2.Circle(imgHand, end, 5, scalar, -1, LineTypes.AntiAlias);
+                    Debug.Log(i + " " + end);
+                }
+            }
 
             // 새롭게 중요 꼭짓점을 그리는 코드
             for(int i = 0; i < newPoints.Count; i++)
@@ -210,7 +211,7 @@ public class HandDetector
                 point.X = point.X / newPoints[i].Count;
                 point.Y = point.Y / newPoints[i].Count;
                 _mainPoint.Add(point);
-                //Cv2.Circle(imgHand, point, 5, new Scalar(0, 255, 0), -1, LineTypes.AntiAlias);
+                Cv2.Circle(imgHand, point, 1, new Scalar(255, 0, 0), -1, LineTypes.AntiAlias);
             }
         }
 
@@ -225,7 +226,7 @@ public class HandDetector
         // 임시로 점을 찍어 출력
         for(int i = 0; i < fingerNum; i++)
         {
-            Cv2.Circle(img, _fingerPoint[i], 5, new Scalar(255, 0, 0), -1, LineTypes.AntiAlias);
+            Cv2.Circle(img, _fingerPoint[i], 1, new Scalar(255, 255, 0), -1, LineTypes.AntiAlias);
         }
     }
 
@@ -338,5 +339,56 @@ public class HandDetector
 
         //Debug.Log("잘됨!-----------------------------------------------------------------------------------------------------");
         _isCorrectDetection = true;
+    }
+
+    private unsafe Point FindPixelInnerContour(Mat img, Point[] contour)
+    {
+        int rows = img.Rows;
+        int cols = img.Cols;
+        bool[,] isContour = new bool[rows, cols];
+
+        int length = contour.Length;
+        for(int i = 0; i < length; i++)
+        {
+            isContour[contour[i].Y, contour[i].X] = true;
+        }
+
+        Point point = new Point(cols / 2, rows / 2);
+        for(int i = 0; i < rows; i++)
+        {
+            for(int j = 0; j < cols; j++)
+            {
+                byte* pixel = img.DataPointer;
+                byte color = *pixel;
+
+                try
+                {
+                    if(isContour[i - 1, j] && isContour[i, j - 1])
+                    {
+                        point.X = j;
+                        point.Y = i;
+                        return point;
+                    }
+                }
+                catch(Exception) { }
+
+                //if(color == 255)
+                //{
+                //    Debug.Log("COLOR " + color);
+                //    isContour[i, j] = true;
+                //}
+                //else
+                //{
+                //    // 컨투어 내부의 픽셀인지 검사
+                //    try
+                //    {
+                        
+                //    }
+                //    catch(Exception) { }
+                //}
+            }
+        }
+
+        return point;
     }
 }
