@@ -160,6 +160,10 @@ public class SkinDetector
         int r, g, b;
         GetHandColor(imgSkin, out r, out g, out b);
 
+        if(r ==0 && g == 0 && b == 0)
+        {
+            return;
+        }
         // 추출한 피부색으로 HSV 설정
         InitializeHsv(r, g, b, true);
         IsExtractedSkinColor = true;
@@ -220,8 +224,11 @@ public class SkinDetector
         }
 
         // 피부색의 RGB 평균
-        r /= count;
-        g /= count;
-        b /= count;
+        if (count != 0)
+        {
+            r /= count;
+            g /= count;
+            b /= count;
+        }
     }
 }

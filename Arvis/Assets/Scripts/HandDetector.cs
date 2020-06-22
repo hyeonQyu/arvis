@@ -156,63 +156,70 @@ public class HandDetector
 
         // defects의 점들을 그룹화 하여 newPoints에 저장
         List<List<Point>> newPoints;
-        newPoints = GroupPoint(contours[largestContourIndex], defects[largestContourIndex]);
-
-        if(largestArea > 1)
+        try
         {
-            Cv2.DrawContours(imgHand, contours, largestContourIndex, new Scalar(0, 255, 0));
-            Cv2.DrawContours(imgFillHand, contours, largestContourIndex, 255);
-            Point pixelInnerContour = FindPixelInnerContour(imgFillHand, contours[largestContourIndex]);
-            Cv2.FloodFill(imgFillHand, pixelInnerContour, 255);
-            Cv2.DrawContours(imgHand, hull, largestContourIndex, new Scalar(0, 0, 255));
+            newPoints = GroupPoint(contours[largestContourIndex], defects[largestContourIndex]);
 
-            Point prevCenter = _center;
-            // 손 중앙 갱신
-            _center = GetHandCenter(imgFillHand);
-            Cv2.Circle(imgHand, _center, /*(int)radius*/5, new Scalar(0, 0, 255));
-            Cv2.Circle(imgHand, prevCenter, 5, new Scalar(0, 255, 0));
-            Debug.Log("Radius " + _radius);
-
-            // 인식이 부정확하지 않은지 평가
-            //EvaluateDetection(prevCenter);
-
-            // Draw defect  기존의 점과 선을 그리던 함수 -> 나중에 주석처리
-            for(int i = 0; i < defects[largestContourIndex].Length; i++)
+            if(largestArea > 1)
             {
-                Point start, end, far;
-                int d = defects[largestContourIndex][i].Item3;
+                Cv2.DrawContours(imgHand, contours, largestContourIndex, new Scalar(0, 255, 0));
+                Cv2.DrawContours(imgFillHand, contours, largestContourIndex, 255);
+                Point pixelInnerContour = FindPixelInnerContour(imgFillHand, contours[largestContourIndex]);
+                Cv2.FloodFill(imgFillHand, pixelInnerContour, 255);
+                Cv2.DrawContours(imgHand, hull, largestContourIndex, new Scalar(0, 0, 255));
 
-                start = contours[largestContourIndex][defects[largestContourIndex][i].Item0];
-                end = contours[largestContourIndex][defects[largestContourIndex][i].Item1];
-                far = contours[largestContourIndex][defects[largestContourIndex][i].Item2];
+                Point prevCenter = _center;
+                // 손 중앙 갱신
+                _center = GetHandCenter(imgFillHand);
+                Cv2.Circle(imgHand, _center, /*(int)radius*/5, new Scalar(0, 0, 255));
+                Cv2.Circle(imgHand, prevCenter, 5, new Scalar(0, 255, 0));
+                Debug.Log("Radius " + _radius);
 
-                if(d > 1)
+                // 인식이 부정확하지 않은지 평가
+                //EvaluateDetection(prevCenter);
+
+                // Draw defect  기존의 점과 선을 그리던 함수 -> 나중에 주석처리
+                for(int i = 0; i < defects[largestContourIndex].Length; i++)
                 {
-                    Scalar scalar = Scalar.RandomColor();
-                    //Cv2.Line(imgHand, start, far, scalar, 2, LineTypes.AntiAlias);
-                    //Cv2.Line(imgHand, end, far, scalar, 2, LineTypes.AntiAlias);
-                    //Cv2.Circle(imgHand, end, 5, scalar, -1, LineTypes.AntiAlias);
-                    Debug.Log(i + " " + end);
+                    Point start, end, far;
+                    int d = defects[largestContourIndex][i].Item3;
+
+                    start = contours[largestContourIndex][defects[largestContourIndex][i].Item0];
+                    end = contours[largestContourIndex][defects[largestContourIndex][i].Item1];
+                    far = contours[largestContourIndex][defects[largestContourIndex][i].Item2];
+
+                    if(d > 1)
+                    {
+                        Scalar scalar = Scalar.RandomColor();
+                        //Cv2.Line(imgHand, start, far, scalar, 2, LineTypes.AntiAlias);
+                        //Cv2.Line(imgHand, end, far, scalar, 2, LineTypes.AntiAlias);
+                        //Cv2.Circle(imgHand, end, 5, scalar, -1, LineTypes.AntiAlias);
+                        Debug.Log(i + " " + end);
+                    }
+                }
+
+                // 새롭게 중요 꼭짓점을 그리는 코드
+                for(int i = 0; i < newPoints.Count; i++)
+                {
+                    Point point = new Point(0, 0);
+                    for(int j = 0; j < newPoints[i].Count; j++)
+                    {
+                        point.X += newPoints[i][j].X;
+                        point.Y += newPoints[i][j].Y;
+                    }
+                    if(newPoints[i].Count == 0)
+                        continue;
+                    // 평균값으로 꼭짓점 찍기
+                    point.X = point.X / newPoints[i].Count;
+                    point.Y = point.Y / newPoints[i].Count;
+                    _mainPoint.Add(point);
+                    Cv2.Circle(imgHand, point, 1, new Scalar(255, 0, 0), -1, LineTypes.AntiAlias);
                 }
             }
-
-            // 새롭게 중요 꼭짓점을 그리는 코드
-            for(int i = 0; i < newPoints.Count; i++)
-            {
-                Point point = new Point(0, 0);
-                for(int j = 0; j < newPoints[i].Count; j++)
-                {
-                    point.X += newPoints[i][j].X;
-                    point.Y += newPoints[i][j].Y;
-                }
-                if(newPoints[i].Count == 0)
-                    continue;
-                // 평균값으로 꼭짓점 찍기
-                point.X = point.X / newPoints[i].Count;
-                point.Y = point.Y / newPoints[i].Count;
-                _mainPoint.Add(point);
-                Cv2.Circle(imgHand, point, 1, new Scalar(255, 0, 0), -1, LineTypes.AntiAlias);
-            }
+        }
+        catch (IndexOutOfRangeException e)
+        {
+            ;
         }
 
         return imgHand;
