@@ -106,7 +106,7 @@ public class WebCam : MonoBehaviour
 
         SendJpgInClientThread();
 
-        Texture2D texture = new Texture2D(Width, Height);
+        //Texture2D texture = new Texture2D(Width, Height);
         Cv2.Resize(_imgFrame, _imgFrame, new Size(Width, Height));
 
         _handDetector.IsCorrectDetection = true;
@@ -148,9 +148,9 @@ public class WebCam : MonoBehaviour
         //texture = OpenCvSharp.Unity.MatToTexture(_imgHand, texture);
         //_display.texture = texture;
 
-        // _imgHand.Release();
-        // _imgMask.Release();
-        // _imgFrame.Release();
+        //_imgHand.Release();
+        //_imgMask.Release();
+        //_imgFrame.Release();
     }
 
     private void SendJpgInClientThread()
@@ -166,7 +166,7 @@ public class WebCam : MonoBehaviour
             Debug.Log("메인 쓰레드 jpg 크기: " + jpg.Length);
             Client.Connect(jpg, _handDetector, _skinDetector);
 
-            // DestroyImmediate(img);
+            DestroyImmediate(img);
         }
     }
 

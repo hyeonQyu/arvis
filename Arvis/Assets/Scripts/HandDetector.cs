@@ -171,7 +171,7 @@ public class HandDetector
             _center = GetHandCenter(imgFillHand);
             Cv2.Circle(imgHand, _center, /*(int)radius*/5, new Scalar(0, 0, 255));
             Cv2.Circle(imgHand, prevCenter, 5, new Scalar(0, 255, 0));
-            Debug.Log("Radius " + _radius);
+            //Debug.Log("Radius " + _radius);
 
             // 인식이 부정확하지 않은지 평가
             //EvaluateDetection(prevCenter);
@@ -192,7 +192,7 @@ public class HandDetector
                     //Cv2.Line(imgHand, start, far, scalar, 2, LineTypes.AntiAlias);
                     //Cv2.Line(imgHand, end, far, scalar, 2, LineTypes.AntiAlias);
                     //Cv2.Circle(imgHand, end, 5, scalar, -1, LineTypes.AntiAlias);
-                    Debug.Log(i + " " + end);
+                    //Debug.Log(i + " " + end);
                 }
             }
 
