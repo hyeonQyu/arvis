@@ -58,8 +58,12 @@ public class Client
     {
         IsConnected = true;
         _socket = new Socket(_ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-        _socket.Connect(_remoteEP);
-        Debug.Log("쓰레드 서버에 접속");
+        _socket.Blocking = false;
+        try
+        {
+            _socket.Connect(_remoteEP);
+        }
+        catch(SocketException) { return; }
 
         _jpg = jpg;
         _handDetector = handDetector;
@@ -68,7 +72,6 @@ public class Client
         // Send 및 Receive 시작
         Thread = new Thread(new ThreadStart(Run));
         IsThreadRun = true;
-        Debug.Log("쓰레드 시작 직전");
         Thread.Start();
     }
 
@@ -111,7 +114,6 @@ public class Client
     {
         byte[] bytes = new byte[16];
         int bytesRec = _socket.Receive(bytes, 16, SocketFlags.None);
-        Debug.Log("쓰레드에서 받은 크기 " + bytesRec);
 
         // 인식이 제대로 이루어지지 않음
         if(bytesRec == 1)

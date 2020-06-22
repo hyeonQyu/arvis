@@ -104,11 +104,7 @@ public class WebCam : MonoBehaviour
 
         _imgFrame = OpenCvSharp.Unity.TextureToMat(_cam);
 
-        try
-        {
-            SendJpgInClientThread();
-        }
-        catch(SocketException) { }
+        SendJpgInClientThread();
 
         Texture2D texture = new Texture2D(Width, Height);
         Cv2.Resize(_imgFrame, _imgFrame, new Size(Width, Height));
