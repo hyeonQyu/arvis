@@ -254,24 +254,25 @@ public class WebCam : MonoBehaviour
         //if (_frame < 120)
         //    return;
 
-            // Get _imgFrame from cam
-            //_imgFrame = OpenCvSharp.Unity.TextureToMat(_cam);
-            // Get _imgFrame from video
-            _frameSource.NextFrame(_imgFrame);
+        // Get _imgFrame from cam
+        //_imgFrame = OpenCvSharp.Unity.TextureToMat(_cam);
+        // Get _imgFrame from video
+        _frameSource.NextFrame(_imgFrame);
         if (!IsFindHandFromYolo)
         {
             //SendJpgInClientThread();
         }
 
         StreamWriter streamErrorWriter = new StreamWriter("b.txt");
-        streamErrorWriter.WriteLine(_imgFrame.Width+"    " + _imgFrame.Height);
+        streamErrorWriter.WriteLine(_imgFrame.Width + "    " + _imgFrame.Height);
         streamErrorWriter.Close();
 
-        if(_imgFrame.Width ==  0 || _imgFrame.Height == 0)
+        if (_imgFrame.Width == 0 || _imgFrame.Height == 0)
         {
             Debug.Log("image is null !!!!");
-            yield return new WaitForSeconds(3);
         }
+        else
+        {
             //Texture2D texture = new Texture2D(Width, Height);
             Cv2.Resize(_imgFrame, _imgFrame, new Size(Width, Height));
 
@@ -332,7 +333,7 @@ public class WebCam : MonoBehaviour
                     _isNextFrame = true;
                     break;
                 }
-            yield return null;
+                yield return null;
             }
 
             Debug.Log("frame = " + _frame + "   success = " + _successFrame + "   fail = " + _failFrame);
@@ -341,4 +342,5 @@ public class WebCam : MonoBehaviour
 
             streamWriter.Close();
         }
+    }
 }
