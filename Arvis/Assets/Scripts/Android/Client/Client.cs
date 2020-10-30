@@ -10,8 +10,8 @@ using UnityEngine.UI;
 
 public class Client
 {
-    //private static string _ip = "127.0.0.1";
-    private static string _ip = "10.21.20.15";
+    private static string _ip = "127.0.0.1";
+    //private static string _ip = "172.20.10.6";
     private static IPAddress _ipAddress;
     private static IPEndPoint _remoteEP;
     private static Socket _socket;
@@ -114,6 +114,7 @@ public class Client
         if(bytesRec == 1)
         {
             Debug.Log("쓰레드 Hand Boundary Fail");
+            WebCam.IsFindHandFromYolo = false;
             return false;
         }
 
@@ -125,6 +126,7 @@ public class Client
 
         _skinDetector.HandBoundary.SetBoundary(datas);
         _skinDetector.IsReceivedSkinColor = true;
+        WebCam.IsFindHandFromYolo = true;
         Debug.Log("쓰레드 Hand Boundary " + _skinDetector.HandBoundary.Left + " " + _skinDetector.HandBoundary.Right + " " + _skinDetector.HandBoundary.Top + " " + _skinDetector.HandBoundary.Bottom);
         return true;
     }

@@ -438,6 +438,15 @@ int main(int argc, char **argv){
     object_location = (struct ObjectLocation*) calloc(1, sizeof(struct ObjectLocation));
     int ret;
 
+    for (int i = 0; i < argc; i++)    // 옵션의 개수만큼 반복
+    {
+        printf("%d %s\n",i, argv[i]);      // 옵션 문자열 출력
+    }
+
+    if(argc > 1){
+        detect_hand(argv[1]);
+    }
+
     FILE* file = NULL;
 
     int server_sockfd;
