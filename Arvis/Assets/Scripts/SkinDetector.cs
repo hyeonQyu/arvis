@@ -31,6 +31,8 @@ public class SkinDetector
     private int[] _lowHue2;
     private int[] _highHue1;
     private int[] _highHue2;
+    private int _lowSat;
+    private int _highSat;
 
     public HandBoundary HandBoundary { get; set; }
     public Mat ImgOrigin { private get; set; }
@@ -66,10 +68,12 @@ public class SkinDetector
         Debug.Log("hue = " + hue + "saturation = " + saturation + "value = " + value);
         int lowHue = hue - 10;
         int highHue = hue + 10;
+        _lowSat = saturation - 50 < 0 ? 0 : saturation -50;
+        _highSat = saturation + 50 > 255 ? 255 : saturation + 50;
         if (isExtractedSkinColor)
         {
-            lowHue = hue - 5;
-            highHue = hue + 5;
+            lowHue = hue - 10;
+            highHue = hue + 10;
         }
 
         int colorIndex = DefaultSkinColor;
@@ -104,7 +108,7 @@ public class SkinDetector
     }
 
     // 피부색을 검출하여 마스크 이미지를 만듦
-    public Mat GetSkinMask(Mat img, bool isExtractedSkinColor = false, int minCr = 128, int maxCr = 170, int minCb = 73, int maxCb = 158)
+    public Mat GetSkinMask(Mat img, bool isExtractedSkinColor = false, bool isYolo = false)
     {
         // 블러 처리
         Mat imgBlur = new Mat();
@@ -123,11 +127,17 @@ public class SkinDetector
         if(isExtractedSkinColor)
             colorIndex = ExtractedSkinColor;
 
-        Cv2.InRange(imgHsv, new Scalar(_lowHue1[colorIndex], 50, 50), new Scalar(_highHue1[colorIndex], 255, 255), imgMask1);
+        if (isYolo)
+        {
+            _lowSat = 10;
+            _highSat = 255;
+        }
+
+        Cv2.InRange(imgHsv, new Scalar(_lowHue1[colorIndex], _lowSat, 50), new Scalar(_highHue1[colorIndex], _highSat, 255), imgMask1);
 
         if(_rangeCount == 2)
         {
-            Cv2.InRange(imgHsv, new Scalar(_lowHue2[colorIndex], 50, 50), new Scalar(_highHue2[colorIndex], 255, 255), imgMask2);
+            Cv2.InRange(imgHsv, new Scalar(_lowHue2[colorIndex], _lowSat, 50), new Scalar(_highHue2[colorIndex], _highSat, 255), imgMask2);
             imgMask1 |= imgMask2;
         }
 
@@ -153,7 +163,8 @@ public class SkinDetector
         InitializeHsv();
 
         // 마스크를 통해 피부색 영역만 검출
-        Mat imgMaskHandSection = GetSkinMask(_imgHandSection);
+        Mat imgMaskHandSection = GetSkinMask(_imgHandSection, IsExtractedSkinColor, true);
+        //Cv2.ImShow("Mask", imgMaskHandSection);
         Mat imgSkin = new Mat();
         Cv2.BitwiseAnd(_imgHandSection, _imgHandSection, imgSkin, imgMaskHandSection);
 
@@ -191,6 +202,7 @@ public class SkinDetector
                 destPtr[destIndex + 2] = srcPtr[srcIndex + 2];
             }
         }
+        //Cv2.ImShow("HandBoundary", _imgHandSection);
     }
 
     private unsafe void GetHandColor(Mat img, out int r, out int g, out int b)
@@ -202,7 +214,7 @@ public class SkinDetector
         int cols = img.Cols;
         int rows = img.Rows;
 
-        for(int i = 0; i < rows; i++)
+        for (int i = 0; i < rows; i++)
         {
             for(int j = 0; j < cols; j++)
             {

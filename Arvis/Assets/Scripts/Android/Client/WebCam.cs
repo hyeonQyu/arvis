@@ -98,7 +98,7 @@ public class WebCam : MonoBehaviour
         // resize : Width, Height
         _handManager = new HandManager(_hand, _display, Width, Height);
 
-        _frameSource = Cv2.CreateFrameSource_Video(Application.dataPath + "/Resources/test3.mp4");
+        _frameSource = Cv2.CreateFrameSource_Video(Application.dataPath + "/Resources/test1.mp4");
 
         Client.Setup();
 
@@ -213,8 +213,8 @@ public class WebCam : MonoBehaviour
         {
             _skinDetector.ImgOrigin = _imgFrame.Clone();
 
-            Texture2D img = new Texture2D(_cam.width, _cam.height);
-            img.SetPixels32(_cam.GetPixels32());
+            Texture2D img = new Texture2D(_imgFrame.Width, _imgFrame.Height);
+            img.SetPixels32(OpenCvSharp.Unity.MatToTexture(_imgFrame).GetPixels32());
 
             byte[] jpg = img.EncodeToJPG();
             Debug.Log("메인 쓰레드 jpg 크기: " + jpg.Length);
@@ -274,6 +274,8 @@ public class WebCam : MonoBehaviour
         else
         {
             //Texture2D texture = new Texture2D(Width, Height);
+            Cv2.Resize(_imgFrame, _imgFrame, new Size(16 * 50, 9 * 50)); // for capture
+            Cv2.ImShow("Original IMG", _imgFrame);
             Cv2.Resize(_imgFrame, _imgFrame, new Size(Width, Height));
 
             _handDetector.IsCorrectDetection = true;
@@ -317,7 +319,8 @@ public class WebCam : MonoBehaviour
 
             _display.texture = OpenCvSharp.Unity.MatToTexture(_imgHand);
 
-            Cv2.ImShow("tset", _imgHand);
+            Cv2.Resize(_imgHand, _imgHand, new Size(16 * 50, 9 * 50)); // for capture
+            Cv2.ImShow("Recognized Hand", _imgHand);
 
             while (true)
             {
@@ -341,6 +344,8 @@ public class WebCam : MonoBehaviour
             streamWriter.WriteLine("frame = " + _frame + "   success = " + _successFrame + "   fail = " + _failFrame);
 
             streamWriter.Close();
+            _isNextFrame = true;
+            yield return null;
         }
     }
 }

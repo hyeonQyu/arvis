@@ -114,6 +114,10 @@ public class HandDetector
         Cv2.CvtColor(imgSkin, imgGray, ColorConversionCodes.BGR2GRAY);
         Cv2.BitwiseNot(imgGray, imgGray);  // 색상반전
 
+        //추후 삭제하자
+        Cv2.Resize(imgSkin, imgSkin, new Size(16*50, 9*50));
+        Cv2.ImShow("Masked Hand", imgSkin);
+
         // GrayScale -> Canny
         Mat imgCanny = new Mat();
         Cv2.Canny(imgGray, imgCanny, 100, 200);
@@ -166,7 +170,6 @@ public class HandDetector
                 Point pixelInnerContour = FindPixelInnerContour(imgFillHand, contours[largestContourIndex]);
                 Cv2.FloodFill(imgFillHand, pixelInnerContour, 255);
                 Cv2.DrawContours(imgHand, hull, largestContourIndex, new Scalar(0, 0, 255));
-
                 Point prevCenter = _center;
                 // 손 중앙 갱신
                 _center = GetHandCenter(imgFillHand);
