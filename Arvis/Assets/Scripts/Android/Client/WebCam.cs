@@ -102,7 +102,7 @@ public class WebCam : MonoBehaviour
 
         Client.Setup();
 
-        StartCoroutine(HandDetect());
+        //StartCoroutine(HandDetect());  // for 논문
 
         //// Remove this later(for the sorting test)
         //for(int i=1; i<_hand.transform.childCount; i++)
@@ -113,97 +113,79 @@ public class WebCam : MonoBehaviour
 
     private void Update()
     {
-        //_frame++;
-        ////if (_frame < 120)
-        ////    return;
+        _frame++;
+        //if (_frame < 120)
+        //    return;
 
-        //try
-        //{
-        //    // Get _imgFrame from cam
-        //    //_imgFrame = OpenCvSharp.Unity.TextureToMat(_cam);
-        //    // Get _imgFrame from video
-        //    _frameSource.NextFrame(_imgFrame);
-
-        //    //SendJpgInClientThread();
-
-        //    //Texture2D texture = new Texture2D(Width, Height);
-        //    Cv2.Resize(_imgFrame, _imgFrame, new Size(Width, Height));
-
-        //    _handDetector.IsCorrectDetection = true;
-
-        //    if (_skinDetector.IsReceivedSkinColor)
-        //    {
-        //        _skinDetector.SetSkinColor();
-        //        _skinDetector.IsReceivedSkinColor = false;
-        //    }
-
-        //    // 피부색으로 마스크 이미지를 검출
-        //    _imgMask = _skinDetector.GetSkinMask(_imgFrame, _skinDetector.IsExtractedSkinColor);
-
-        //    // 손의 점들을 얻음
-        //    _imgHand = _handDetector.GetHandLineAndPoint(_imgFrame, _imgMask);
-
-        //    //// 손 인식이 정확하지 않으면 프레임을 업데이트 하지 않음
-        //    //if(!_handDetector.IsCorrectDetection)
-        //    //{
-        //    //    //texture = OpenCvSharp.Unity.MatToTexture(_imgHand, texture);
-        //    //    //_display.texture = texture;
-        //    //    return;
-        //    //}
-
-        //    // 손가락 끝점을 그림
-        //    //_handDetector.DrawFingerPointAtImg(_imgHand);
-
-        //    // 화면상의 손가락 끝 좌표를 가상세계 좌표로 변환
-        //    _handManager.InputPoint(_handDetector.MainPoint, _handDetector.Center);
-
-        //    // Stop MoveSmooth Coroutine
-        //    //StopMoveSmooth();
-
-        //    // 가상 손을 움직임
-        //    _handManager.MoveHand((float)_handDetector.Radius);
-
-        //    _handDetector.MainPoint.Clear();
-
-        //    //texture = OpenCvSharp.Unity.MatToTexture(_imgMask, texture);
-        //    //_display.texture = texture;
-
-        //    _display.texture = OpenCvSharp.Unity.MatToTexture(_imgHand);
-
-        //    Cv2.ImShow("tset", _imgHand);
-
-        //    while (true)
-        //    {
-        //        if (Input.GetKeyDown(KeyCode.O))
-        //        {
-        //            _successFrame++;
-        //            break;
-        //        }
-        //        if (Input.GetKeyDown(KeyCode.X))
-        //        {
-        //            _failFrame++;
-        //            break;
-        //        }
-        //    }
-
-        //    Debug.Log("frame = " + _frame + "   success = " + _successFrame + "   fail = " + _failFrame);
-        //    StreamWriter streamWriter = new StreamWriter("a.txt");
-        //    streamWriter.WriteLine("frame = " + _frame + "   success = " + _successFrame + "   fail = " + _failFrame);
-
-        //    streamWriter.Close();
-        //    //_imgHand.Release();
-        //    //_imgMask.Release();
-        //    //_imgFrame.Release();
-        //}
-        //catch (ArgumentNullException e)
-        //{
-        //    ;
-        //}
-        if (_isNextFrame)
+        try
         {
-            _isNextFrame = false;
-            StartCoroutine(HandDetect());
+            // Get _imgFrame from cam
+            _imgFrame = OpenCvSharp.Unity.TextureToMat(_cam);
+            // Get _imgFrame from video
+            //_frameSource.NextFrame(_imgFrame);
+
+            //SendJpgInClientThread();
+
+            //Texture2D texture = new Texture2D(Width, Height);
+            Cv2.Resize(_imgFrame, _imgFrame, new Size(Width, Height));
+
+            _handDetector.IsCorrectDetection = true;
+
+            if (_skinDetector.IsReceivedSkinColor)
+            {
+                _skinDetector.SetSkinColor();
+                _skinDetector.IsReceivedSkinColor = false;
+            }
+
+            // 피부색으로 마스크 이미지를 검출
+            _imgMask = _skinDetector.GetSkinMask(_imgFrame, _skinDetector.IsExtractedSkinColor);
+
+            // 손의 점들을 얻음
+            _imgHand = _handDetector.GetHandLineAndPoint(_imgFrame, _imgMask);
+
+            //// 손 인식이 정확하지 않으면 프레임을 업데이트 하지 않음
+            //if(!_handDetector.IsCorrectDetection)
+            //{
+            //    //texture = OpenCvSharp.Unity.MatToTexture(_imgHand, texture);
+            //    //_display.texture = texture;
+            //    return;
+            //}
+
+            // 손가락 끝점을 그림
+            _handDetector.DrawFingerPointAtImg(_imgHand);
+
+            // 화면상의 손가락 끝 좌표를 가상세계 좌표로 변환
+            _handManager.InputPoint(_handDetector.MainPoint, _handDetector.Center);
+
+            // Stop MoveSmooth Coroutine
+            //StopMoveSmooth();
+
+            // 가상 손을 움직임
+            _handManager.MoveHand((float)_handDetector.Radius);
+
+            _handDetector.MainPoint.Clear();
+
+            //texture = OpenCvSharp.Unity.MatToTexture(_imgMask, texture);
+            //_display.texture = texture;
+
+            _display.texture = OpenCvSharp.Unity.MatToTexture(_imgHand);
+
+            Cv2.ImShow("tset", _imgHand);
+
+            //_imgHand.Release();
+            //_imgMask.Release();
+            //_imgFrame.Release();
         }
+        catch (ArgumentNullException e)
+        {
+            ;
+        }
+
+        //if (_isNextFrame)
+        //{
+        //    _isNextFrame = false;
+        //    StartCoroutine(HandDetect());
+        //}
 
     }
 
@@ -248,6 +230,7 @@ public class WebCam : MonoBehaviour
         }
     }
 
+    // 논문 작성을 위한 코드. 한 프레임씩 검사
     IEnumerator HandDetect()
     {
         _frame++;
